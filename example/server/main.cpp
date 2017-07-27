@@ -1,4 +1,8 @@
 
+#ifdef __GNUC__
+#include <signal.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +21,38 @@
 #include "util/ObjectFactory.h"
 
 using namespace sframe;
+
+
+void AdminCmd_GetServerInfo(const sframe::AdminCmd & cmd)
+{
+	std::ostringstream oss;
+	oss << "Server Name : " << ServerConfig::Instance().server_name << std::endl;
+
+	if (cmd.GetCmdParam("all") == "1")
+	{
+		oss << "Service Info :" << std::endl;
+
+		for (auto & pr_service_type : ServerConfig::Instance().type_to_services)
+		{
+			for (auto & pr : pr_service_type.second)
+			{
+				if (pr.second)
+				{
+					oss << "    " << pr.second->service_type_name << '(' << pr.second->sid << ")  "
+						<< (pr.second->is_local_service ? "local" : "remote");
+					if (!pr.second->is_local_service)
+					{
+						oss << "  addr(" << pr.second->remote_addr.ip << ':' << pr.second->remote_addr.port << ')';
+					}
+					oss << std::endl;
+				}
+			}
+		}
+	}
+
+	cmd.SendResponse(oss.str());
+}
+
 
 bool Start()
 {
@@ -62,7 +98,16 @@ bool Start()
 	{
 		ServiceDispatcher::Instance().SetServiceListenAddr(
 			ServerConfig::Instance().listen_service->ip,
-			ServerConfig::Instance().listen_service->port);
+			ServerConfig::Instance().listen_service->port
+		);
+	}
+
+	if (ServerConfig::Instance().listen_admin)
+	{
+		ServiceDispatcher::Instance().SetAdminListenAddr(
+			ServerConfig::Instance().listen_admin->ip,
+			ServerConfig::Instance().listen_admin->port
+		);
 	}
 
 	for (const auto & pr : ServerConfig::Instance().listen_custom)
@@ -78,6 +123,9 @@ bool Start()
 			ServiceDispatcher::Instance().SetCustomListenAddr(addr_info.desc, addr_info.addr.ip, addr_info.addr.port, it->second);
 		}
 	}
+
+	// ◊¢≤·π‹¿Ì√¸¡Ó
+	ServiceDispatcher::Instance().RegistAdminCmd("get_server_info", &AdminCmd_GetServerInfo);
 
 	if (!ServiceDispatcher::Instance().Start(ServerConfig::Instance().thread_num))
 	{
@@ -103,12 +151,42 @@ int main(int argc, char * argv[])
 		return -1;
 	}
 
+#ifdef __GNUC__
+
+	sigset_t wai_sig_set;
+	sigemptyset(&wai_sig_set);
+	sigaddset(&wai_sig_set, SIGQUIT);
+	int r = pthread_sigmask(SIG_BLOCK, &wai_sig_set, nullptr);
+	if (r != 0)
+	{
+		LOG_ERROR << "pthread_sigmask error(" << r << ") : " << strerror(r) << ENDL;
+		return -1;
+	}
+
+#endif
+
 	if (!Start())
 	{
 		return -1;
 	}
 
+#ifdef __GNUC__
+
+	while (true)
+	{
+		int sig;
+		int r = sigwait(&wai_sig_set, &sig);
+		if (r == 0)
+		{
+			break;
+		}
+	}
+
+#else
+
 	getchar();
+
+#endif
 
 	ServiceDispatcher::Instance().Stop();
 
