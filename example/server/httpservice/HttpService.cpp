@@ -1,8 +1,8 @@
-
+ï»¿
 #include "HttpService.h"
 #include "util/Log.h"
 
-// ³õÊ¼»¯£¨´´½¨·şÎñ³É¹¦ºóµ÷ÓÃ£¬´ËÊ±»¹Î´¿ªÊ¼ÔËĞĞ£©
+// åˆå§‹åŒ–ï¼ˆåˆ›å»ºæœåŠ¡æˆåŠŸåè°ƒç”¨ï¼Œæ­¤æ—¶è¿˜æœªå¼€å§‹è¿è¡Œï¼‰
 void HttpService::Init()
 {
 	std::function<HttpSession*(const int64_t &)> get_session_func = std::bind(&HttpService::GetHttpSession, this, std::placeholders::_1);
@@ -10,7 +10,7 @@ void HttpService::Init()
 	RegistInsideServiceMessageHandler(kHttpMsg_HttpSessionClosed, &HttpSession::OnMsg_HttpSessionClosed, get_session_func);
 }
 
-// ĞÂÁ¬½Óµ½À´
+// æ–°è¿æ¥åˆ°æ¥
 void HttpService::OnNewConnection(const sframe::ListenAddress & listen_addr_info, const std::shared_ptr<sframe::TcpSocket> & sock)
 {
 	sframe::Error err = sock->SetTcpNodelay(true);
@@ -24,7 +24,7 @@ void HttpService::OnNewConnection(const sframe::ListenAddress & listen_addr_info
 	FLOG("HttpService") << "Build new session " << http_session->GetSessionId() << std::endl;
 }
 
-// ´¦ÀíÏú»Ù
+// å¤„ç†é”€æ¯
 void HttpService::OnDestroy()
 {
 	for (auto & pr : _sessions)
@@ -33,7 +33,7 @@ void HttpService::OnDestroy()
 	}
 }
 
-// »ñÈ¡HttpSession
+// è·å–HttpSession
 HttpSession * HttpService::GetHttpSession(int64_t session_id) const
 {
 	auto it = _sessions.find(session_id);

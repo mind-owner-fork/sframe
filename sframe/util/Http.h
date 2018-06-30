@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_HTTP_H
 #define SFRAME_HTTP_H
 
@@ -14,8 +14,8 @@ namespace sframe {
 
 enum HttpType
 {
-	kHttpType_Request = 1,      // HttpÇëÇó
-	kHttpType_Response = 2,     // HttpÏìÓ¦
+	kHttpType_Request = 1,      // Httpè¯·æ±‚
+	kHttpType_Response = 2,     // Httpå“åº”
 };
 
 class Http
@@ -26,19 +26,19 @@ public:
 
 	typedef std::unordered_map<std::string, std::vector<std::string>> Header;
 
-	// ±ê×¼»¯Í·²¿ÊôĞÔKey
+	// æ ‡å‡†åŒ–å¤´éƒ¨å±æ€§Key
 	static std::string StandardizeHeaderKey(const std::string & key);
 
-	// URL±àÂë
+	// URLç¼–ç 
 	static std::string UrlEncode(const std::string & str);
 
-	// URL½âÂë
+	// URLè§£ç 
 	static std::string UrlDecode(const std::string & str);
 
-	// ½âÎöHTTP²ÎÊı
+	// è§£æHTTPå‚æ•°
 	static Http::Param ParseHttpParam(const std::string para_str);
 
-	// HttpParam×ª»»Îªstring
+	// HttpParamè½¬æ¢ä¸ºstring
 	static std::string HttpParamToString(const Http::Param & para);
 
 
@@ -154,10 +154,10 @@ public:
 
 	enum DecodeState
 	{
-		kDecodeState_FirstLine = 0,       // ÕıÔÚµÚÒ»ĞĞ
-		kDecodeState_HttpHeader = 1,      // ÕıÔÚ½âÎöÍ·²¿ÊôĞÔ
-		kDecodeState_Content = 2,         // ÕıÔÚ½âÎöÄÚÈİ²¿·Ö
-		kDecodeState_Completed = 3,       // ½âÎöÍê³É
+		kDecodeState_FirstLine = 0,       // æ­£åœ¨ç¬¬ä¸€è¡Œ
+		kDecodeState_HttpHeader = 1,      // æ­£åœ¨è§£æå¤´éƒ¨å±æ€§
+		kDecodeState_Content = 2,         // æ­£åœ¨è§£æå†…å®¹éƒ¨åˆ†
+		kDecodeState_Completed = 3,       // è§£æå®Œæˆ
 	};
 
 	void Reset();
@@ -167,15 +167,15 @@ public:
 		return _state == kDecodeState_Completed;
 	}
 
-	// ½âÎö
-	// ·µ»Ø½âÎöÁËµÄÓĞĞ§Êı¾İÊı¾İµÄ³¤¶È
+	// è§£æ
+	// è¿”å›è§£æäº†çš„æœ‰æ•ˆæ•°æ®æ•°æ®çš„é•¿åº¦
 	size_t Decode(const std::string & data, std::string & err_msg)
 	{
 		return Decode(data.data(), data.length(), err_msg);
 	}
 
-	// ½âÎö
-	// ·µ»Ø½âÎöÁËµÄÓĞĞ§Êı¾İÊı¾İµÄ³¤¶È
+	// è§£æ
+	// è¿”å›è§£æäº†çš„æœ‰æ•ˆæ•°æ®æ•°æ®çš„é•¿åº¦
 	size_t Decode(const char * data, size_t len, std::string & err_msg);
 
 protected:
@@ -208,7 +208,7 @@ private:
 	std::shared_ptr<HttpRequest> _http_request;
 	std::shared_ptr<HttpResponse> _http_response;
 	int32_t _state;
-	int32_t _remain_content_len;      // -1.chunked²»È·¶¨³¤¶È; -2.ÄÚÈİÖªµÀÁ¬½Ó¹Ø±Õ²Å¶ÁÍê; >0.¶¨³¤
+	int32_t _remain_content_len;      // -1.chunkedä¸ç¡®å®šé•¿åº¦; -2.å†…å®¹çŸ¥é“è¿æ¥å…³é—­æ‰è¯»å®Œ; >0.å®šé•¿
 	std::vector<std::string> _data_list;
 };
 

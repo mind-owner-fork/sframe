@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_DELEGATE_H
 #define SFRAME_DELEGATE_H
 
@@ -10,16 +10,16 @@
 
 namespace sframe {
 
-// DelegateÀàĞÍ
+// Delegateç±»å‹
 enum DelegateType 
 {
 	kDelegateType_None = 0,
-	kDelegateType_StaticFuncDelegate,                              // ¾²Ì¬º¯ÊıÎ¯ÍĞ
-	kDelegateType_MemberFuncDelegate_WithObject,                   // ³ÉÔ±º¯ÊıÎ¯ÍĞ(Í¨¹ı¶ÔÏóµ÷ÓÃ)
-	kDelegateType_MemberFuncDelegate_WithObjectFinder,             // ³ÉÔ±º¯ÊıÎ¯ÍĞ(Í¨¹ı¶ÔÏó²éÕÒÆ÷µ÷ÓÃ)
+	kDelegateType_StaticFuncDelegate,                              // é™æ€å‡½æ•°å§”æ‰˜
+	kDelegateType_MemberFuncDelegate_WithObject,                   // æˆå‘˜å‡½æ•°å§”æ‰˜(é€šè¿‡å¯¹è±¡è°ƒç”¨)
+	kDelegateType_MemberFuncDelegate_WithObjectFinder,             // æˆå‘˜å‡½æ•°å§”æ‰˜(é€šè¿‡å¯¹è±¡æŸ¥æ‰¾å™¨è°ƒç”¨)
 };
 
-// Delegate½Ó¿Ú
+// Delegateæ¥å£
 template<typename Decoder_Type>
 class IDelegate
 {
@@ -29,7 +29,7 @@ public:
 	virtual bool Call(Decoder_Type& decoder) = 0;
 };
 
-// ¾²Ì¬º¯ÊıÎ¯ÍĞ
+// é™æ€å‡½æ•°å§”æ‰˜
 template<typename Decoder_Type, typename... Args_Type>
 class StaticFuncDelegate : public IDelegate<Decoder_Type>
 {
@@ -73,7 +73,7 @@ private:
 	FuncT _func;
 };
 
-// ³ÉÔ±º¯ÊıÎ¯ÍĞ½Ó¿Ú(Í¨¹ı¶ÔÏóµ÷ÓÃ)
+// æˆå‘˜å‡½æ•°å§”æ‰˜æ¥å£(é€šè¿‡å¯¹è±¡è°ƒç”¨)
 template<typename Decoder_Type, typename Object_Type>
 class IMemberFuncDelegate_WithObject : public IDelegate<Decoder_Type>
 {
@@ -83,7 +83,7 @@ public:
 	virtual bool CallWithObject(Object_Type * obj, Decoder_Type& decoder) = 0;
 };
 
-// ³ÉÔ±º¯ÊıÎ¯ÍĞµÄÊµÏÖ
+// æˆå‘˜å‡½æ•°å§”æ‰˜çš„å®ç°
 template<typename Decoder_Type, typename Object_Type, typename... Args_Type>
 class MemeberFunctionDelegate_WithObject : public IMemberFuncDelegate_WithObject<Decoder_Type, Object_Type>
 {
@@ -141,7 +141,7 @@ private:
 	FuncT _func;
 };
 
-// ³ÉÔ±º¯ÊıÎ¯ÍĞ½Ó¿Ú(Í¨¹ı¶ÔÏó²éÕÒÆ÷µ÷ÓÃ)
+// æˆå‘˜å‡½æ•°å§”æ‰˜æ¥å£(é€šè¿‡å¯¹è±¡æŸ¥æ‰¾å™¨è°ƒç”¨)
 template<typename Decoder_Type, typename Object_Key_Type>
 class IMemberFuncDelegate_WithObjectFinder : public IDelegate<Decoder_Type>
 {
@@ -156,7 +156,7 @@ public:
 	virtual bool CallWithObjectKey(const Object_Key_Type & obj_key, Decoder_Type& decoder) = 0;
 };
 
-// ³ÉÔ±º¯ÊıÎ¯ÍĞ(Í¨¹ı¶ÔÏó²éÕÒÆ÷µ÷ÓÃ)
+// æˆå‘˜å‡½æ•°å§”æ‰˜(é€šè¿‡å¯¹è±¡æŸ¥æ‰¾å™¨è°ƒç”¨)
 template<typename Decoder_Type, typename Object_Key_Type, typename Object_Type, typename... Args_Type>
 class MemberFuncDelegate_WithObjectFinder : public IMemberFuncDelegate_WithObjectFinder<Decoder_Type, Object_Key_Type>
 {
@@ -223,7 +223,7 @@ private:
 };
 
 
-// Delegate¹ÜÀíÆ÷
+// Delegateç®¡ç†å™¨
 template <typename Decoder_Type>
 class DelegateManager
 {
@@ -321,9 +321,9 @@ public:
 		return member_func_caller->CallWithObjectKey(obj_key, decoder);
 	}
 
-	////////// ×¢²áº¯Êı ////////////
+	////////// æ³¨å†Œå‡½æ•° ////////////
 
-	// ×¢²á¾²Ì¬º¯Êı
+	// æ³¨å†Œé™æ€å‡½æ•°
 	template<typename... Args>
 	DelegateType Regist(int id, void(*func)(Args...))
 	{
@@ -337,7 +337,7 @@ public:
 		return caller->GetType();
 	}
 
-	// ×¢²á³ÉÔ±º¯Êı
+	// æ³¨å†Œæˆå‘˜å‡½æ•°
 	template<typename Object_Type, typename... Args>
 	DelegateType Regist(int id, void(Object_Type::*func)(Args...))
 	{
@@ -351,7 +351,7 @@ public:
 		return caller->GetType();
 	}
 
-	// ×¢²á³ÉÔ±º¯ÊıÍ¬Ê±°ó¶¨¶ÔÏó
+	// æ³¨å†Œæˆå‘˜å‡½æ•°åŒæ—¶ç»‘å®šå¯¹è±¡
 	template<typename Object_Type, typename... Args>
 	DelegateType Regist(int id, void(Object_Type::*func)(Args...), Object_Type * obj)
 	{
@@ -371,7 +371,7 @@ public:
 		return caller->GetType();
 	}
 
-	// ×¢²á³ÉÔ±º¯ÊıÍ¬Ê±°ó¶¨¶ÔÏó²éÕÒÆ÷
+	// æ³¨å†Œæˆå‘˜å‡½æ•°åŒæ—¶ç»‘å®šå¯¹è±¡æŸ¥æ‰¾å™¨
 	template<typename Object_Key_Type, typename Object_Type, typename... Args>
 	DelegateType Regist(int id, void(Object_Type::*func)(Args...), const std::function<Object_Type*(const Object_Key_Type & obj_key)> & obj_finder)
 	{

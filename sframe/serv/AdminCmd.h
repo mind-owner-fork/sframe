@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_ADMIN_CMD_H
 #define SFRAME_ADMIN_CMD_H
 
@@ -10,7 +10,7 @@
 
 namespace sframe {
 
-// ¹ÜÀíÃüÁî
+// ç®¡ç†å‘½ä»¤
 class AdminCmd
 {
 public:
@@ -44,7 +44,7 @@ private:
 	std::shared_ptr<sframe::HttpRequest> _http_req;
 };
 
-// ¹ÜÀíÃüÁî´¦Àí·½·¨
+// ç®¡ç†å‘½ä»¤å¤„ç†æ–¹æ³•
 typedef std::function<void(const AdminCmd &)> AdminCmdHandleFunc;
 
 }

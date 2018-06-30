@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_PANEL_H
 #define SFRAME_PANEL_H
 
@@ -28,7 +28,7 @@ static const uint8_t kByteBitMask_Negative[8] = {
 	0xfe, 0xfd, 0xfb, 0xf7,0xef, 0xdf ,0xbf, 0x7f
 };
 
-// ·â×°°´Î»ÔËËãµÄ¿ª¹Ø(Î»Ë÷Òı´Ó0¿ªÊ¼)
+// å°è£…æŒ‰ä½è¿ç®—çš„å¼€å…³(ä½ç´¢å¼•ä»0å¼€å§‹)
 template<int32_t Bit_Count>
 class BitPanel
 {

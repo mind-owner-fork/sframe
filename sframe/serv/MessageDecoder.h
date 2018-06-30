@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_MESSAGE_DECODER_H
 #define SFRAME_MESSAGE_DECODER_H
 
@@ -8,7 +8,7 @@
 
 namespace sframe {
 
-// ÄÚ²¿·şÎñÏûÏ¢½âÂëÆ÷
+// å†…éƒ¨æœåŠ¡æ¶ˆæ¯è§£ç å™¨
 class InsideServiceMessageDecoder
 {
 public:
@@ -21,7 +21,11 @@ public:
 	bool Decode(std::tuple<Args...> ** p_args_tuple, std::tuple<Args...> & args_tuple)
 	{
 		MessageType msg_type = _msg->GetType();
-		assert(msg_type == kMsgType_InsideServiceMessage);
+		if (msg_type != kMsgType_InsideServiceMessage)
+		{
+			assert(false);
+			return false;
+		}
 
 		InsideServiceMessage<Args...> * msg = dynamic_cast<InsideServiceMessage<Args...>*>(_msg);
 		if (msg == nullptr)
@@ -38,7 +42,7 @@ private:
 	ServiceMessage * _msg;
 };
 
-// ÍøÂç·şÎñÏûÏ¢½âÂëÆ÷
+// ç½‘ç»œæœåŠ¡æ¶ˆæ¯è§£ç å™¨
 class NetServiceMessageDecoder
 {
 public:

@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_JSON_LOADER_H
 #define SFRAME_JSON_LOADER_H
 
@@ -9,15 +9,15 @@
 
 namespace sframe {
 
-// JSON¶ÁÈ¡Æ÷
+// JSONè¯»å–å™¨
 class JsonLoader
 {
 public:
 
-	// È¥×¢ÊÍ
+	// å»æ³¨é‡Š
 	static std::string RemoveComments(const std::string & data)
 	{
-		int cur_state = 0;   // 0 ²»ÊÇ×¢ÊÍ, 1 ĞĞ×¢ÊÍ, 2¶Î×¢ÊÍ 
+		int cur_state = 0;   // 0 ä¸æ˜¯æ³¨é‡Š, 1 è¡Œæ³¨é‡Š, 2æ®µæ³¨é‡Š 
 		std::ostringstream oss;
 		auto it = data.begin();
 		while (it < data.end())
@@ -27,7 +27,7 @@ public:
 			{
 				if (c == '\n')
 				{
-					// ĞĞ×¢ÊÍ½áÊø
+					// è¡Œæ³¨é‡Šç»“æŸ
 					cur_state = 0;
 				}
 			}
@@ -36,7 +36,7 @@ public:
 				if (c == '*' &&  it < data.end() - 1 && (*(it + 1)) == '/')
 				{
 					it++;
-					// ¶Î×¢ÊÍ½áÊø
+					// æ®µæ³¨é‡Šç»“æŸ
 					cur_state = 0;
 				}
 			}

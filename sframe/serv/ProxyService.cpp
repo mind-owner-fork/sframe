@@ -1,4 +1,4 @@
-
+ï»¿
 #include "ServiceDispatcher.h"
 #include "ProxyService.h"
 #include "../net/SocketAddr.h"
@@ -6,6 +6,8 @@
 #include "../util/TimeHelper.h"
 
 using namespace sframe;
+
+const std::string ProxyService::kAdminAddrDescName = "AdminAddr";
 
 
 ProxyService::ProxyService() : _have_no_session(true), _listening(false), _cur_max_session_id(0), _session_id_first_loop(true)
@@ -26,7 +28,7 @@ ProxyService::~ProxyService()
 
 void ProxyService::Init()
 {
-	// ×¢²áÏûÏ¢´¦Àíº¯Êı
+	// æ³¨å†Œæ¶ˆæ¯å¤„ç†å‡½æ•°
 	this->RegistInsideServiceMessageHandler(kProxyServiceMsgId_SessionClosed, &ProxyService::OnMsg_SessionClosed, this);
 	this->RegistInsideServiceMessageHandler(kProxyServiceMsgId_SessionRecvData, &ProxyService::OnMsg_SessionRecvData, this);
 	this->RegistInsideServiceMessageHandler(kProxyServiceMsgId_SessionConnectCompleted, &ProxyService::OnMsg_SessionConnectCompleted, this);
@@ -50,17 +52,17 @@ bool ProxyService::IsDestroyCompleted() const
 	return _have_no_session;
 }
 
-// ´¦ÀíÖÜÆÚ¶¨Ê±Æ÷
+#include <iostream>
+
+// å¤„ç†å‘¨æœŸå®šæ—¶å™¨
 void ProxyService::OnCycleTimer()
 {
 	_timer_mgr.Execute();
 }
 
-// ĞÂÁ¬½Óµ½À´
+// æ–°è¿æ¥åˆ°æ¥
 void ProxyService::OnNewConnection(const ListenAddress & listen_addr_info, const std::shared_ptr<sframe::TcpSocket> & sock)
 {
-	static const std::string admin_addr_desc = "AdminAddr";
-
 	Error err = sock->SetTcpNodelay(true);
 	if (err)
 	{
@@ -75,7 +77,7 @@ void ProxyService::OnNewConnection(const ListenAddress & listen_addr_info, const
 		return;
 	}
 
-	if (listen_addr_info.desc_name == admin_addr_desc)
+	if (listen_addr_info.desc_name == kAdminAddrDescName)
 	{
 		AddServiceSession(session_id, new AdminSession(session_id, this, sock));
 	}
@@ -85,12 +87,13 @@ void ProxyService::OnNewConnection(const ListenAddress & listen_addr_info, const
 	}
 }
 
-// ´úÀí·şÎñÏûÏ¢
+// ä»£ç†æœåŠ¡æ¶ˆæ¯
 void ProxyService::OnProxyServiceMessage(const std::shared_ptr<ProxyServiceMessage> & msg)
 {
 	auto it = _sid_to_sessionid.find(msg->dest_sid);
 	if (it == _sid_to_sessionid.end())
 	{
+		LOG_WARN << "Send message to remote service " << msg->dest_sid << " error, can not find related service session" << std::endl;
 		return;
 	}
 
@@ -98,19 +101,20 @@ void ProxyService::OnProxyServiceMessage(const std::shared_ptr<ProxyServiceMessa
 	ServiceSession * session = GetServiceSession(sessionid);
 	if (session)
 	{
-		// µ÷ÓÃ·¢ËÍ
+		// è°ƒç”¨å‘é€
 		session->SendData(msg);
 	}
 	else
 	{
+		LOG_ERROR << "find service session error|" << sessionid << std::endl;
 		assert(false);
 	}
 }
 
 #define MAKE_ADDR_INFO(ip, port) ((((int64_t)(ip) & 0xffffffff) << 16) | ((int64_t)(port) & 0xffff))
 
-// ×¢²á»á»°
-// ·µ»Ø»á»°ID£¬Ğ¡ÓÚ0Ê§°Ü
+// æ³¨å†Œä¼šè¯
+// è¿”å›ä¼šè¯IDï¼Œå°äº0å¤±è´¥
 int32_t ProxyService::RegistSession(int32_t sid, const std::string & remote_ip, uint16_t remote_port)
 {
 	auto it_sid_to_sessionid = _sid_to_sessionid.find(sid);
@@ -127,7 +131,7 @@ int32_t ProxyService::RegistSession(int32_t sid, const std::string & remote_ip, 
 	auto it_session_id = _session_addr_to_sessionid.find(addr_info);
 	if (it_session_id == _session_addr_to_sessionid.end())
 	{
-		// ÈôÃ»ÓĞÏàÍ¬Ä¿µÄµØÖ·µÄsession£¬ĞÂ½¨Ò»¸ö
+		// è‹¥æ²¡æœ‰ç›¸åŒç›®çš„åœ°å€çš„sessionï¼Œæ–°å»ºä¸€ä¸ª
 		session_id = GetNewSessionId();
 		if (session_id < 0)
 		{
@@ -145,15 +149,15 @@ int32_t ProxyService::RegistSession(int32_t sid, const std::string & remote_ip, 
 	}
 
 	assert(session && session_id == session->GetSessionId());
-	// Ìí¼Ó»á»°°üº¬µÄ·şÎñ
+	// æ·»åŠ ä¼šè¯åŒ…å«çš„æœåŠ¡
 	_sessionid_to_sid[session_id].insert(sid);
-	// Ìí¼Ósidµ½sessionidµÄÓ³Éä
+	// æ·»åŠ sidåˆ°sessionidçš„æ˜ å°„
 	_sid_to_sessionid[sid] = session_id;
 
 	return session_id;
 }
 
-// ×¢²á¹ÜÀíÃüÁî´¦Àí´¦Àí·½·¨
+// æ³¨å†Œç®¡ç†å‘½ä»¤å¤„ç†å¤„ç†æ–¹æ³•
 void ProxyService::RegistAdminCmd(const std::string & cmd, const AdminCmdHandleFunc & func)
 {
 	_map_admin_cmd_func[cmd] = func;
@@ -262,16 +266,16 @@ void ProxyService::OnMsg_SessionClosed(bool by_self, int32_t session_id)
 	ServiceSession * session = GetServiceSession(session_id);
 	assert(session && session->GetSessionId() == session_id);
 
-	// ÊÇ·ñÒªÉ¾³ısession
+	// æ˜¯å¦è¦åˆ é™¤session
 	if (!session->TryFree())
 	{
 		return;
 	}
 
-	// É¾³ısession
+	// åˆ é™¤session
 	DeleteServiceSession(session_id);
 
-	// É¾³ıÆäËû¼ÇÂ¼
+	// åˆ é™¤å…¶ä»–è®°å½•
 	auto it_sid = _sessionid_to_sid.find(session_id);
 	if (it_sid != _sessionid_to_sid.end())
 	{
@@ -304,12 +308,18 @@ void ProxyService::OnMsg_SessionRecvData(int32_t session_id, const std::shared_p
 		return;
 	}
 
+	if (!data)
+	{
+		session->DoRecvHeartbeatMsg();
+		return;
+	}
+
 	std::vector<char> & vec_data = *data;
-	char * p = &vec_data[0];
+	char * p = vec_data.data();
 	uint32_t len = (uint32_t)vec_data.size();
 	StreamReader reader(p, len);
 
-	// ¶ÁÈ¡ÏûÏ¢Í·²¿
+	// è¯»å–æ¶ˆæ¯å¤´éƒ¨
 	int32_t src_sid = 0;
 	int32_t dest_sid = 0;
 	int64_t msg_session_key = 0;
@@ -320,7 +330,7 @@ void ProxyService::OnMsg_SessionRecvData(int32_t session_id, const std::shared_p
 		return;
 	}
 
-	// Ô´·şÎñIDÊÇ·ñºÍ±¾µØ·şÎñID³åÍ»
+	// æºæœåŠ¡IDæ˜¯å¦å’Œæœ¬åœ°æœåŠ¡IDå†²çª
 	if (ServiceDispatcher::Instance().IsLocalService(src_sid))
 	{
 		LOG_ERROR << "Recv from remote server(" << session->GetRemoteAddrText()
@@ -328,8 +338,8 @@ void ProxyService::OnMsg_SessionRecvData(int32_t session_id, const std::shared_p
 		return;
 	}
 
-	// ²éÕÒÔ¶³Ì·şÎñÊÇ·ñÒÑ¾­¹ØÁªÁËsession£¬Èô»¹Ã»ÓĞ¹ØÁª£¬ÔÚÕâÀï¹ØÁª
-	// ¹ØÁªÔ¶³Ì·şÎñIDÓëSession
+	// æŸ¥æ‰¾è¿œç¨‹æœåŠ¡æ˜¯å¦å·²ç»å…³è”äº†sessionï¼Œè‹¥è¿˜æ²¡æœ‰å…³è”ï¼Œåœ¨è¿™é‡Œå…³è”
+	// å…³è”è¿œç¨‹æœåŠ¡IDä¸Session
 	if (_sid_to_sessionid.insert(std::make_pair(src_sid, session_id)).second)
 	{
 		_sessionid_to_sid[session_id].insert(src_sid);
@@ -337,21 +347,24 @@ void ProxyService::OnMsg_SessionRecvData(int32_t session_id, const std::shared_p
 
 	if (ServiceDispatcher::Instance().IsLocalService(dest_sid))
 	{
-		// ·â×°ÏûÏ¢²¢·¢ËÍµ½Ä¿±ê±¾µØ·şÎñ
+		// å°è£…æ¶ˆæ¯å¹¶å‘é€åˆ°ç›®æ ‡æœ¬åœ°æœåŠ¡
 		int32_t data_len = (int32_t)len - (int32_t)reader.GetReadedLength();
-		assert(data_len >= 0);
+		if (data_len < 0)
+		{
+			assert(false);
+		}
 		std::shared_ptr<NetServiceMessage> msg = std::make_shared<NetServiceMessage>();
 		msg->dest_sid = dest_sid;
 		msg->src_sid = src_sid;
 		msg->session_key = msg_session_key;
 		msg->msg_id = msg_id;
 		msg->data = std::move(vec_data);
-		// ·¢ËÍµ½Ä¿±ê·şÎñ
+		// å‘é€åˆ°ç›®æ ‡æœåŠ¡
 		ServiceDispatcher::Instance().SendMsg(dest_sid, msg);
 	}
 	else
 	{
-		// ÊÇ·ñÓĞ¶ÔÓ¦µÄÔ¶³Ì·şÎñ»á»°
+		// æ˜¯å¦æœ‰å¯¹åº”çš„è¿œç¨‹æœåŠ¡ä¼šè¯
 		auto it = _sid_to_sessionid.find(dest_sid);
 		if (it == _sid_to_sessionid.end())
 		{
@@ -360,18 +373,18 @@ void ProxyService::OnMsg_SessionRecvData(int32_t session_id, const std::shared_p
 			return;
 		}
 
-		// ×ª·¢µ½Ô¶³Ì·şÎñ
+		// è½¬å‘åˆ°è¿œç¨‹æœåŠ¡
 		ServiceSession * other_session = GetServiceSession(it->second);
 		if (other_session)
 		{
 			uint16_t msg_size = (uint16_t)vec_data.size();
 			if (msg_size >= kMaxPackSize)
 			{
-				// ÔÚ·¢ËÍÍøÂçÏûÏ¢´¦ÓĞ¼ì²â£¬ÕâÀïÒ»°ã²»¿ÉÄÜ·¢Éú
+				// åœ¨å‘é€ç½‘ç»œæ¶ˆæ¯å¤„æœ‰æ£€æµ‹ï¼Œè¿™é‡Œä¸€èˆ¬ä¸å¯èƒ½å‘ç”Ÿ
 				msg_size = kMaxPackSize;
 			}
 			msg_size = HTON_16(msg_size);
-			// µ÷ÓÃ·¢ËÍ
+			// è°ƒç”¨å‘é€
 			other_session->SendData((const char *)&msg_size, sizeof(uint16_t));
 			other_session->SendData(vec_data.data(), msg_size);
 
@@ -408,7 +421,7 @@ void ProxyService::OnMsg_AdminCommand(int32_t admin_session_id, const std::share
 		return;
 	}
 
-	// Ö»Ö§³ÖGET
+	// åªæ”¯æŒGET
 	if (http_req->GetMethod() != "GET")
 	{
 		HttpResponse http_resp;
@@ -454,7 +467,7 @@ void ProxyService::OnMsg_AdminCommand(int32_t admin_session_id, const std::share
 
 	LOG_INFO << "Recv admin cmd from client(" << session->GetRemoteAddrText() << ")|" << admin_cmd.ToString() << std::endl;
 
-	// µ÷ÓÃ´¦Àíº¯Êı
+	// è°ƒç”¨å¤„ç†å‡½æ•°
 	it->second(admin_cmd);
 }
 

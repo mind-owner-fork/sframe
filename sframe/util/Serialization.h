@@ -1,4 +1,4 @@
-
+﻿
 #ifndef SFRAME_SERIALIZATION_H
 #define SFRAME_SERIALIZATION_H
 
@@ -24,6 +24,8 @@ public:
 
 	static size_t GetSizeFieldSize(size_t s);
 
+	static size_t GetUnsignedNumberSize(uint64_t n);
+
 	StreamWriter(char * buf, size_t len) : _buf(buf), _capacity(len), _data_pos(0) {}
 
 	size_t GetStreamLength() const
@@ -40,24 +42,26 @@ public:
 
 	bool WriteSizeField(size_t s);
 
+	bool WriteUnsignedNumber(uint64_t n);
+
 private:
-	char * const _buf;       // ������
-	size_t _capacity;      // ����
-	size_t _data_pos;      // ���ݵ�ǰλ��
+	char * const _buf;       // 缓冲区
+	size_t _capacity;      // 容量
+	size_t _data_pos;      // 数据当前位置
 };
 
 class StreamReader
 {
 public:
-	StreamReader(const char * buf, size_t len) : _buf(buf), _capacity(len), _cur_pos(0) {}
+	StreamReader(const char * buf, size_t len) : _buf(buf), _cur_pos(0), _capacity(len) {}
 
-	// ��ȡ�Ѷ�ȡ�ĳ���
+	// 获取已读取的长度
 	size_t GetReadedLength() const
 	{
 		return _cur_pos;
 	}
 
-	// ��ȡδ������
+	// 获取未读长度
 	size_t GetNotReadLength() const
 	{
 		return _cur_pos >= _capacity ? 0 : _capacity - _cur_pos;
@@ -74,22 +78,24 @@ public:
 
 	bool ReadSizeField(size_t & s);
 
+	bool ReadUnsignedNumber(uint64_t & n);
+
 	size_t ForwardCurPos(size_t len);
 
 	size_t BackwardCurPos(size_t len);
 
 private:
-	const char * const _buf;  // ������
-	size_t _cur_pos;        // ��ǰλ��
-	size_t _capacity;       // ����
+	const char * const _buf;  // 缓冲区
+	size_t _cur_pos;        // 当前位置
+	size_t _capacity;       // 容量
 };
 
 
 /**
-��С���ж���ת����ظ���
+大小端判断与转换相关辅助
 */
 
-// ���CPU�ֽ��򣬴�˷���true
+// 检测CPU字节序，大端返回true
 inline bool CheckCpuEndian()
 {
 	union
@@ -102,7 +108,7 @@ inline bool CheckCpuEndian()
 	return (test.arr[0] == 0x01);
 }
 
-// �ֽ�������
+// 字节序逆向
 #define REVERSE_BYTES_ORDER_16(x) ( \
     (((uint16_t)(x) & 0x00ff) << 8) | \
     (((uint16_t)(x) & 0xff00) >> 8) \
@@ -178,7 +184,7 @@ private:
 		return obj.Encode(stream_writer);
 	}
 
-	// ƥ���� �������� bool����ֵ���Ա���������� bool T_Obj::FillObject(T_Reader & reader)
+	// 匹配器 ———— bool返回值类成员函数，形如 bool T_Obj::FillObject(T_Reader & reader)
 	template<typename U, bool(U::*)(StreamWriter &) const>
 	struct MethodMatcher;
 
@@ -216,7 +222,7 @@ private:
 		return obj.Decode(stream_reader);
 	}
 
-	// ƥ���� �������� bool����ֵ���Ա���������� bool T_Obj::FillObject(T_Reader & reader)
+	// 匹配器 ———— bool返回值类成员函数，形如 bool T_Obj::FillObject(T_Reader & reader)
 	template<typename U, bool(U::*)(StreamReader &)>
 	struct MethodMatcher;
 
@@ -249,7 +255,7 @@ private:
 		return obj.GetSize();
 	}
 
-	// ƥ���� �������� bool����ֵ���Ա���������� bool T_Obj::FillObject(T_Reader & reader)
+	// 匹配器 ———— bool返回值类成员函数，形如 bool T_Obj::FillObject(T_Reader & reader)
 	template<typename U, size_t(U::*)() const>
 	struct MethodMatcher;
 
@@ -260,212 +266,75 @@ private:
 	static std::false_type match(...);
 };
 
-template<>
-struct Serializer<char>
+template<typename T, typename T_Unsigned>
+struct Serializer_Num
 {
-	static bool Encode(StreamWriter & stream_writer, char v)
+	static bool Encode(StreamWriter & stream_writer, T v)
 	{
-		return stream_writer.Write((const void *)&v, sizeof(char));
+		return stream_writer.WriteUnsignedNumber(static_cast<T_Unsigned>(v));
 	}
 
-	static bool Decode(StreamReader & stream_reader, char & v)
+	static bool Decode(StreamReader & stream_reader, T & v)
 	{
-		return stream_reader.Read((void*)&v, sizeof(char));
-	}
-
-	static size_t GetSize(char v)
-	{
-		return sizeof(v);
-	}
-};
-
-template<>
-struct Serializer<int8_t>
-{
-	static bool Encode(StreamWriter & stream_writer, int8_t v)
-	{
-		return stream_writer.Write((const void *)&v, sizeof(int8_t));
-	}
-
-	static bool Decode(StreamReader & stream_reader, int8_t & v)
-	{
-		return stream_reader.Read((void*)&v, sizeof(int8_t));
-	}
-
-	static size_t GetSize(int8_t v)
-	{
-		return sizeof(v);
-	}
-};
-
-
-template<>
-struct Serializer<uint8_t>
-{
-	static bool Encode(StreamWriter & stream_writer, uint8_t v)
-	{
-		return stream_writer.Write((const void *)&v, sizeof(uint8_t));
-	}
-
-	static bool Decode(StreamReader & stream_reader, uint8_t & v)
-	{
-		return stream_reader.Read((void*)&v, sizeof(uint8_t));
-	}
-
-	static size_t GetSize(uint8_t v)
-	{
-		return sizeof(v);
-	}
-};
-
-template<>
-struct Serializer<int16_t>
-{
-	static bool Encode(StreamWriter & stream_writer, int16_t v)
-	{
-		v = (int16_t)HTON_16(v);
-		return stream_writer.Write((const void *)&v, sizeof(int16_t));
-	}
-
-	static bool Decode(StreamReader & stream_reader, int16_t & v)
-	{
-		if (!stream_reader.Read((void*)&v, sizeof(int16_t)))
+		uint64_t uv = 0;
+		if (!stream_reader.ReadUnsignedNumber(uv))
 		{
 			return false;
 		}
-		v = (int16_t)NTOH_16(v);
+		v = static_cast<T>(uv);
 		return true;
 	}
 
-	static size_t GetSize(int16_t v)
+	static size_t GetSize(T v)
 	{
-		return sizeof(v);
+		return StreamWriter::GetUnsignedNumberSize(static_cast<T_Unsigned>(v));
 	}
 };
 
 template<>
-struct Serializer<uint16_t>
+struct Serializer<char> : Serializer_Num<char, uint8_t>
 {
-	static bool Encode(StreamWriter & stream_writer, uint16_t v)
-	{
-		v = (uint16_t)HTON_16(v);
-		return stream_writer.Write((const void *)&v, sizeof(uint16_t));
-	}
-
-	static bool Decode(StreamReader & stream_reader, uint16_t & v)
-	{
-		if (!stream_reader.Read((void*)&v, sizeof(uint16_t)))
-		{
-			return false;
-		}
-		v = (uint16_t)NTOH_16(v);
-		return true;
-	}
-
-	static size_t GetSize(uint16_t v)
-	{
-		return sizeof(v);
-	}
 };
 
 template<>
-struct Serializer<int32_t>
+struct Serializer<int8_t> : Serializer_Num<int8_t, uint8_t>
 {
-	static bool Encode(StreamWriter & stream_writer, int32_t v)
-	{
-		v = (int32_t)HTON_32(v);
-		return stream_writer.Write((const void *)&v, sizeof(int32_t));
-	}
+};
 
-	static bool Decode(StreamReader & stream_reader, int32_t & v)
-	{
-		if (!stream_reader.Read((void*)&v, sizeof(int32_t)))
-		{
-			return false;
-		}
-		v = (int32_t)NTOH_32(v);
-		return true;
-	}
 
-	static size_t GetSize(int32_t v)
-	{
-		return sizeof(v);
-	}
+template<>
+struct Serializer<uint8_t> : Serializer_Num<uint8_t, uint8_t>
+{
 };
 
 template<>
-struct Serializer<uint32_t>
+struct Serializer<int16_t> : Serializer_Num<int16_t, uint16_t>
 {
-	static bool Encode(StreamWriter & stream_writer, uint32_t v)
-	{
-		v = (uint32_t)HTON_32(v);
-		return stream_writer.Write((const void *)&v, sizeof(uint32_t));
-	}
-
-	static bool Decode(StreamReader & stream_reader, uint32_t & v)
-	{
-		if (!stream_reader.Read((void*)&v, sizeof(uint32_t)))
-		{
-			return false;
-		}
-		v = (uint32_t)NTOH_32(v);
-		return true;
-	}
-
-	static size_t GetSize(uint32_t v)
-	{
-		return sizeof(v);
-	}
 };
 
 template<>
-struct Serializer<int64_t>
+struct Serializer<uint16_t> : Serializer_Num<uint16_t, uint16_t>
 {
-	static bool Encode(StreamWriter & stream_writer, int64_t v)
-	{
-		v = (int64_t)HTON_64(v);
-		return stream_writer.Write((const void *)&v, sizeof(int64_t));
-	}
-
-	static bool Decode(StreamReader & stream_reader, int64_t & v)
-	{
-		if (!stream_reader.Read((void*)&v, sizeof(int64_t)))
-		{
-			return false;
-		}
-		v = (int64_t)NTOH_64(v);
-		return true;
-	}
-
-	static size_t GetSize(int64_t v)
-	{
-		return sizeof(v);
-	}
 };
 
 template<>
-struct Serializer<uint64_t>
+struct Serializer<int32_t> : Serializer_Num<int32_t, uint32_t>
 {
-	static bool Encode(StreamWriter & stream_writer, uint64_t v)
-	{
-		v = (uint64_t)HTON_64(v);
-		return stream_writer.Write((const void *)&v, sizeof(uint64_t));
-	}
+};
 
-	static bool Decode(StreamReader & stream_reader, uint64_t & v)
-	{
-		if (!stream_reader.Read((void*)&v, sizeof(uint64_t)))
-		{
-			return false;
-		}
-		v = (uint64_t)NTOH_64(v);
-		return true;
-	}
+template<>
+struct Serializer<uint32_t> : Serializer_Num<uint32_t, uint32_t>
+{
+};
 
-	static size_t GetSize(uint64_t v)
-	{
-		return sizeof(v);
-	}
+template<>
+struct Serializer<int64_t> :Serializer_Num<int64_t, uint64_t>
+{
+};
+
+template<>
+struct Serializer<uint64_t> : Serializer_Num<uint64_t, uint64_t>
+{
 };
 
 template<>
@@ -774,7 +643,7 @@ struct Serializer_Map
 			return false;
 		}
 
-		for (int i = 0; i < len; i++)
+		for (size_t i = 0; i < len; i++)
 		{
 			typename T_Map::key_type key;
 			typename T_Map::mapped_type val;
@@ -852,7 +721,7 @@ struct Serializer<double>
 	}
 };
 
-// ����ָ�����л���
+// 对象指针序列化器
 class ObjectPtrSerializer
 {
 public:
@@ -910,7 +779,7 @@ private:
 			return false;
 		}
 		obj_type = (uint16_t)NTOH_16(obj_type);
-		// �����д�������ķ�������Ȼֱ��ʹ��������
+		// 必须有创建对象的方法，不然直接使其编译错误
 		obj = T::CreateObject(obj_type);
 		if (!obj)
 		{
@@ -933,7 +802,7 @@ private:
 		return sizeof(uint16_t) + SizeGettor::GetSize<T>(*obj);
 	}
 
-	// ƥ����
+	// 匹配器
 	template<typename U, size_t(*)(const U *)>
 	struct MethodMatcher;
 
@@ -992,6 +861,195 @@ struct Serializer<std::shared_ptr<T>>
 	}
 };
 
+
+
+
+// 占位
+struct PlaceHolder { };
+
+constexpr PlaceHolder placeholder;
+
+/* 
+	对象序列化器(主要用于辅助序列化一个struct或class的对象)
+	只用此类进行序列化、反序列化，会将传入所有参数当成一个整体
+	序列化时会加入这个整体长度，反序列化时，无论是否传完所有参数，都会会一次性读完所有数据
+	序列化时会加入每一个参数的index，反序列化时会匹配每一个index
+	参数的index，按照传入顺序递增(从0开始)，跳位穿入PlaceHolder
+ */
+class ObjectSerializer
+{
+public:
+
+	static const size_t kStartSerializeIndex = 0;
+
+	template<typename... T>
+	static bool Encode(StreamWriter & stream_writer, const T&... args)
+	{
+		size_t s = GetSizeImp(kStartSerializeIndex, args...);
+		return stream_writer.WriteSizeField(s) && EncodeImp(kStartSerializeIndex, stream_writer, args...);
+	}
+
+	template<typename... T>
+	static bool Decode(StreamReader & stream_reader, T&... args)
+	{
+		size_t s = 0;
+		size_t not_read_len = stream_reader.GetNotReadLength();
+		if (not_read_len != 0 && !stream_reader.ReadSizeField(s))
+		{
+			return false;
+		}
+		if (s > not_read_len)
+		{ 
+			return false; 
+		}
+		sframe::StreamReader sub_stream_reader(stream_reader.GetStreamBuffer() + stream_reader.GetReadedLength(), s);
+		stream_reader.ForwardCurPos(s);
+		return DecodeImp(kStartSerializeIndex, sub_stream_reader, args...);
+	}
+
+	template<typename... T>
+	static size_t GetSize(const T&... args)
+	{
+		size_t s = GetSizeImp(kStartSerializeIndex, args...);
+		return sframe::StreamWriter::GetSizeFieldSize(s) + s;
+	}
+
+private:
+
+	static bool EncodeImp(size_t, StreamWriter & stream_writer)
+	{
+		return true;
+	}
+
+	static bool EncodeImp(size_t, StreamWriter & stream_writer, const PlaceHolder &)
+	{
+		return true;
+	}
+
+	template<typename T_CurArg>
+	static bool EncodeImp(size_t index, StreamWriter & stream_writer, const T_CurArg & t)
+	{
+		size_t s = SizeGettor::GetSize<T_CurArg>(t);
+		return stream_writer.WriteSizeField(index) && stream_writer.WriteSizeField(s) + Encoder::Encode<T_CurArg>(stream_writer, t);
+	}
+
+	template<typename T_CurArg, typename... T_Args>
+	static bool EncodeImp(size_t index, StreamWriter & stream_writer, const T_CurArg & t, const T_Args&... args)
+	{
+		return EncodeImp(index, stream_writer, t) && EncodeImp(index + 1, stream_writer, args...);
+	}
+
+
+	static bool DecodeImp(size_t, StreamReader & stream_writer)
+	{
+		return true;
+	}
+
+	static bool DecodeImp(size_t, StreamReader & stream_reader, PlaceHolder &)
+	{
+		return true;
+	}
+
+	static bool DecodeImp(size_t, StreamReader & stream_reader, const PlaceHolder &)
+	{
+		return true;
+	}
+
+	template<typename T_CurArg>
+	static bool DecodeImp(size_t index, StreamReader & stream_reader, T_CurArg & t)
+	{
+		while (true)
+		{
+			if (stream_reader.GetNotReadLength() == 0)
+			{
+				t = T_CurArg();
+				return true;
+			}
+
+			size_t old_read_len = stream_reader.GetReadedLength();
+			size_t i = 0;
+			if (!stream_reader.ReadSizeField(i))
+			{
+				break;
+			}
+
+			// 当前数据中的index大于当前参数index，给当前参数默认值，回退当前读取数据位置，让下一个参数读取
+			if (i > index)
+			{
+				size_t backwork_len = 0;
+				if (stream_reader.GetReadedLength() >= old_read_len)
+				{
+					backwork_len = stream_reader.GetReadedLength() - old_read_len;
+				}
+				else
+				{
+					assert(false);
+				}
+				if (stream_reader.BackwardCurPos(backwork_len) != old_read_len)
+				{
+					assert(false);
+				}
+
+				t = T_CurArg();
+				return true;
+			}
+
+			size_t len = 0;
+			if (!stream_reader.ReadSizeField(len) ||
+				len > stream_reader.GetNotReadLength())
+			{
+				break;
+			}
+
+			// 数据中的index，与当前参数index相等，则读取数据
+			if (i == index)
+			{
+				sframe::StreamReader sub_stream_reader(stream_reader.GetStreamBuffer() + stream_reader.GetReadedLength(), len);
+				stream_reader.ForwardCurPos(len);
+				return Decoder::Decode<T_CurArg>(sub_stream_reader, t);
+			}
+
+			// 数据中的index小于当前参数index相等，跳过该段数据，继续读取下一段数据
+			stream_reader.ForwardCurPos(len);
+		}
+
+		return false;
+	}
+
+	template<typename T_CurArg, typename... T_Args>
+	static bool DecodeImp(size_t index, StreamReader & stream_reader, T_CurArg & t, T_Args&... args)
+	{
+		return DecodeImp(index, stream_reader, t) && DecodeImp(index + 1, stream_reader, args...);
+	}
+
+
+	static size_t GetSizeImp(size_t)
+	{
+		return 0;
+	}
+
+	static size_t GetSizeImp(size_t, const PlaceHolder & t)
+	{
+		return 0;
+	}
+
+	template<typename T>
+	static size_t GetSizeImp(size_t index, const T & t)
+	{
+		size_t s = SizeGettor::GetSize<T>(t);
+		return StreamWriter::GetSizeFieldSize(index) + StreamWriter::GetSizeFieldSize(s) + s;
+	}
+
+	template<typename T, typename... T_Args>
+	static size_t GetSizeImp(size_t index, const T & t, const T_Args&... args)
+	{
+		return GetSizeImp(index, t) + GetSizeImp(index + 1, args...);
+	}
+
+};
+
+
+
 inline bool AutoEncode(StreamWriter & stream_writer)
 {
 	return true;
@@ -1045,91 +1103,86 @@ inline size_t AutoGetSize(const T & t, const T_Args&... args)
 
 }
 
-// ���л�����
+
+/*
+	序列化申明
+*/
 #define DECLARE_SERIALIZE \
 	size_t GetSize() const; \
 	bool Encode(sframe::StreamWriter & stream_writer) const; \
 	bool Decode(sframe::StreamReader & stream_reader);
 
-// ���л�����(�麯��)
+/*
+	序列化申明(虚函数)
+*/
 #define DECLARE_VIRTUAL_SERIALIZE \
 	virtual size_t GetSize() const; \
 	virtual bool Encode(sframe::StreamWriter & stream_writer) const; \
 	virtual bool Decode(sframe::StreamReader & stream_reader);
 
-// ���л�����(���麯��)
+/*
+	序列化申明(存虚函数)
+*/
 #define DECLARE_PURE_VIRTUAL_SERIALIZE \
 	virtual size_t GetSize() const = 0; \
 	virtual bool Encode(sframe::StreamWriter & stream_writer) const = 0; \
 	virtual bool Decode(sframe::StreamReader & stream_reader) = 0;
 
-// ���л�����(д�����ṹ���ⲿ)
+/* 
+	序列化定义(写在类或结构体外部)
+	参数列表从左到右，从0开始，依次递增的索引，对应参数的的序列化索引，解码时会对照编码时打包的索引
+	空位用 sframe::placeholder 代替，也会占用一个索引
+*/
 #define DEFINE_SERIALIZE_OUTER(S, ...) \
 	size_t S::GetSize() const \
 	{ \
-		size_t s = sframe::AutoGetSize(__VA_ARGS__); \
-		return sframe::StreamWriter::GetSizeFieldSize(s) + s; \
+		return sframe::ObjectSerializer::GetSize(__VA_ARGS__); \
 	} \
 	bool S::Encode(sframe::StreamWriter & stream_writer) const \
 	{ \
-		size_t s = sframe::AutoGetSize(__VA_ARGS__);\
-		if (!stream_writer.WriteSizeField(s)) {return false;} \
-		return sframe::AutoEncode(stream_writer, ##__VA_ARGS__); \
+		return sframe::ObjectSerializer::Encode(stream_writer, ##__VA_ARGS__); \
 	} \
 	bool S::Decode(sframe::StreamReader & stream_reader) \
 	{ \
-		size_t s = 0; \
-		if (!stream_reader.ReadSizeField(s)) {return false;} \
-		if (s > stream_reader.GetNotReadLength()) {return false;} \
-		sframe::StreamReader sub_stream_reader(stream_reader.GetStreamBuffer() + stream_reader.GetReadedLength(), s); \
-		stream_reader.ForwardCurPos(s); \
-		return sframe::AutoDecode(sub_stream_reader, ##__VA_ARGS__); \
+		return sframe::ObjectSerializer::Decode(stream_reader, ##__VA_ARGS__); \
 	}
 
-// ���л����壨д�����ṹ���ڲ���
+/*
+	序列化定义（写在类或结构体内部）
+	参数列表从左到右，从0开始，依次递增的索引，对应参数的的序列化索引，解码时会对照编码时打包的索引
+	空位用 sframe::placeholder 代替，也会占用一个索引
+*/
 #define DEFINE_SERIALIZE_INNER(...) \
 	size_t GetSize() const \
 	{ \
-		size_t s = sframe::AutoGetSize(__VA_ARGS__); \
-		return sframe::StreamWriter::GetSizeFieldSize(s) + s; \
+		return sframe::ObjectSerializer::GetSize(__VA_ARGS__); \
 	} \
 	bool Encode(sframe::StreamWriter & stream_writer) const \
 	{ \
-		size_t s = sframe::AutoGetSize(__VA_ARGS__);\
-		if (!stream_writer.WriteSizeField(s)) {return false;} \
-		return sframe::AutoEncode(stream_writer, ##__VA_ARGS__); \
+		return sframe::ObjectSerializer::Encode(stream_writer, ##__VA_ARGS__); \
 	} \
 	bool Decode(sframe::StreamReader & stream_reader) \
 	{ \
-		size_t s = 0; \
-		if (!stream_reader.ReadSizeField(s)) {return false;} \
-		if (s > stream_reader.GetNotReadLength()) {return false;} \
-		sframe::StreamReader sub_stream_reader(stream_reader.GetStreamBuffer() + stream_reader.GetReadedLength(), s); \
-		stream_reader.ForwardCurPos(s); \
-		return sframe::AutoDecode(sub_stream_reader, ##__VA_ARGS__); \
+		return sframe::ObjectSerializer::Decode(stream_reader, ##__VA_ARGS__); \
 	}
 
-// ���л����壨�麯�����塢д�����ṹ���ڲ���
+/*
+	序列化定义（虚函数定义、写在类或结构体内部）
+	参数列表从左到右，从0开始，依次递增的索引，对应参数的的序列化索引，解码时会对照编码时打包的索引
+	空位用 sframe::placeholder 代替，也会占用一个索引
+*/
 #define DEFINE_VIRTUAL_SERIALIZE_INNER(...) \
 	virtual size_t GetSize() const \
 	{ \
-		size_t s = sframe::AutoGetSize(__VA_ARGS__); \
-		return sframe::StreamWriter::GetSizeFieldSize(s) + s; \
+		return sframe::ObjectSerializer::GetSize(__VA_ARGS__); \
 	} \
 	virtual bool Encode(sframe::StreamWriter & stream_writer) const \
 	{ \
-		size_t s = sframe::AutoGetSize(__VA_ARGS__);\
-		if (!stream_writer.WriteSizeField(s)) {return false;} \
-		return sframe::AutoEncode(stream_writer, ##__VA_ARGS__); \
+		return sframe::ObjectSerializer::Encode(stream_writer, ##__VA_ARGS__); \
 	} \
 	virtual bool Decode(sframe::StreamReader & stream_reader) \
 	{ \
-		size_t s = 0; \
-		if (!stream_reader.ReadSizeField(s)) {return false;} \
-		if (s > stream_reader.GetNotReadLength()) {return false;} \
-		sframe::StreamReader sub_stream_reader(stream_reader.GetStreamBuffer() + stream_reader.GetReadedLength(), s); \
-		stream_reader.ForwardCurPos(s); \
-		return sframe::AutoDecode(sub_stream_reader, ##__VA_ARGS__); \
+		return sframe::ObjectSerializer::Decode(stream_reader, ##__VA_ARGS__); \
 	}
 
 #endif

@@ -1,4 +1,4 @@
-
+ï»¿
 #ifdef __GNUC__
 #include <signal.h>
 #endif
@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
 #include <string>
 #include <map>
 #include <unordered_map>
@@ -58,7 +59,7 @@ bool Start()
 {
 	std::unordered_map<std::string, std::set<int32_t>> local_service;
 
-	// ×¢²áËùÓĞ·şÎñ
+	// æ³¨å†Œæ‰€æœ‰æœåŠ¡
 	for (const auto & pr : ServerConfig::Instance().services)
 	{
 		auto serv_info = pr.second;
@@ -124,7 +125,7 @@ bool Start()
 		}
 	}
 
-	// ×¢²á¹ÜÀíÃüÁî
+	// æ³¨å†Œç®¡ç†å‘½ä»¤
 	ServiceDispatcher::Instance().RegistAdminCmd("get_server_info", &AdminCmd_GetServerInfo);
 
 	if (!ServiceDispatcher::Instance().Start(ServerConfig::Instance().thread_num))
@@ -145,13 +146,22 @@ int main(int argc, char * argv[])
 	}
 
 	std::string config_name = argv[1];
-	INITIALIZE_LOG("./" + FileHelper::RemoveExtension(FileHelper::GetFileName(config_name)) + "_log", "");
+	std::string log_path = "./" + FileHelper::RemoveExtension(FileHelper::GetFileName(config_name)) + "_log";
+	INITIALIZE_LOG(log_path, "");
 	if (!ServerConfig::Instance().Load(config_name))
 	{
 		return -1;
 	}
 
 #ifdef __GNUC__
+
+	std::string pid_file_name = log_path + "/server.pid";
+	sframe::Error err = FileHelper::WritePidFile(pid_file_name, true);
+	if (err)
+	{
+		std::cerr << "[ERROR] Write pid file error(" << err.Code() << ") : " << sframe::ErrorMessage(err).Message() << std::endl;
+		return -1;
+	}
 
 	sigset_t wai_sig_set;
 	sigemptyset(&wai_sig_set);

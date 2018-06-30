@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef __WORK_SERVICE_H__
 #define __WORK_SERVICE_H__
 
@@ -13,7 +13,7 @@ public:
 	WorkService() {}
 	virtual ~WorkService() {}
 
-	// ³õÊ¼»¯£¨´´½¨·şÎñ³É¹¦ºóµ÷ÓÃ£¬´ËÊ±»¹Î´¿ªÊ¼ÔËĞĞ£©
+	// åˆå§‹åŒ–ï¼ˆåˆ›å»ºæœåŠ¡æˆåŠŸåè°ƒç”¨ï¼Œæ­¤æ—¶è¿˜æœªå¼€å§‹è¿è¡Œï¼‰
 	void Init() override;
 
 private:

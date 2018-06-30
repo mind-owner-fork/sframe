@@ -1,4 +1,4 @@
-
+ï»¿
 #include <assert.h>
 #include "Table.h"
 
@@ -79,7 +79,7 @@ Table::~Table()
 	}
 }
 
-// Ìí¼ÓÐÂÁÐ
+// æ·»åŠ æ–°åˆ—
 Column & Table::NewColumn(const std::string & column_name)
 {
 	int32_t new_index = (int32_t)_columns.size();
@@ -96,7 +96,7 @@ Column & Table::NewColumn(const std::string & column_name)
 	return *col;
 }
 
-// Ìí¼ÓÐÂÐÐ
+// æ·»åŠ æ–°è¡Œ
 Row & Table::NewRow()
 {
 	Row * r = new Row(this);

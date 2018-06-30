@@ -1,4 +1,4 @@
-
+ï»¿
 #include "HttpSession.h"
 #include "HttpService.h"
 #include "util/Log.h"
@@ -10,8 +10,8 @@ HttpSession::HttpSession(HttpService * http_service, const std::shared_ptr<sfram
 	_sock->StartRecv();
 }
 
-// ½ÓÊÕµ½Êı¾İ
-// ·µ»ØÊ£Óà¶àÉÙÊı¾İ
+// æ¥æ”¶åˆ°æ•°æ®
+// è¿”å›å‰©ä½™å¤šå°‘æ•°æ®
 int32_t HttpSession::OnReceived(char * data, int32_t len)
 {
 	std::string err_msg;
@@ -19,7 +19,7 @@ int32_t HttpSession::OnReceived(char * data, int32_t len)
 	if (!err_msg.empty())
 	{
 		FLOG("HttpService") << "HttpSession " << _session_id << " decode http request error|" << err_msg << std::endl;
-		// ¹Ø±ÕÁ¬½Ó
+		// å…³é—­è¿æ¥
 		return -1;
 	}
 
@@ -34,8 +34,8 @@ int32_t HttpSession::OnReceived(char * data, int32_t len)
 	return len - (int32_t)readed;
 }
 
-// Socket¹Ø±Õ
-// by_self: true±íÊ¾Ö÷¶¯ÇëÇóµÄ¹Ø±Õ²Ù×÷
+// Socketå…³é—­
+// by_self: trueè¡¨ç¤ºä¸»åŠ¨è¯·æ±‚çš„å…³é—­æ“ä½œ
 void HttpSession::OnClosed(bool by_self, sframe::Error err)
 {
 	if (err)

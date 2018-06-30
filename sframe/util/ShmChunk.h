@@ -1,4 +1,4 @@
-
+ï»¿
 #pragma once
 #ifndef SFRAME_SHM_CHUNK_H
 #define SFRAME_SHM_CHUNK_H
@@ -15,14 +15,14 @@
 #include <sys/shm.h>
 #endif
 
-// ¹²ÏíÄÚ´æ¿é
+// å…±äº«å†…å­˜å—
 class ShmChunk
 {
 public:
 	/*
-	¹¹Ôìº¯Êı
-	@shm_key: ¹²ÏíÄÚ´æµÄkey(windowsÏÂÊ¹ÓÃ×Ö·û´®£¬linuxÏÂÊ¹ÓÃÊı×Ö£¬ÕâÀïÍ³Ò»ÎªÊı×Ö)
-	@shm_size: ´óĞ¡
+	æ„é€ å‡½æ•°
+	@shm_key: å…±äº«å†…å­˜çš„key(windowsä¸‹ä½¿ç”¨å­—ç¬¦ä¸²ï¼Œlinuxä¸‹ä½¿ç”¨æ•°å­—ï¼Œè¿™é‡Œç»Ÿä¸€ä¸ºæ•°å­—)
+	@shm_size: å¤§å°
 	*/
 	ShmChunk(int32_t shm_key, int32_t shm_size) : _shm_key(shm_key), _shm_size(shm_size), _shm_ptr(nullptr)
 	{

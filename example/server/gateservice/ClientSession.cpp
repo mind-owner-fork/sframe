@@ -1,4 +1,4 @@
-
+ï»¿
 #include "serv/ServiceDispatcher.h"
 #include "ClientSession.h"
 #include "GateService.h"
@@ -8,8 +8,8 @@
 
 using namespace sframe;
 
-// ½ÓÊÕµ½Êý¾Ý
-// ·µ»ØÊ£Óà¶àÉÙÊý¾Ý
+// æŽ¥æ”¶åˆ°æ•°æ®
+// è¿”å›žå‰©ä½™å¤šå°‘æ•°æ®
 int32_t ClientSession::OnReceived(char * data, int32_t len)
 {
 	char * p = data;
@@ -17,10 +17,10 @@ int32_t ClientSession::OnReceived(char * data, int32_t len)
 
 	while (surplus > 0)
 	{
-		uint16_t msg_size = 0;
+		size_t msg_size = 0;
 		StreamReader msg_size_reader(p, surplus);
-		if (!AutoDecode(msg_size_reader, msg_size) ||
-			surplus - msg_size_reader.GetReadedLength() < msg_size)
+		if (!msg_size_reader.ReadSizeField(msg_size) ||
+			msg_size_reader.GetNotReadLength() < msg_size)
 		{
 			break;
 		}
@@ -43,8 +43,8 @@ int32_t ClientSession::OnReceived(char * data, int32_t len)
 	return surplus;
 }
 
-// Socket¹Ø±Õ
-// by_self: true±íÊ¾Ö÷¶¯ÇëÇóµÄ¹Ø±Õ²Ù×÷
+// Socketå…³é—­
+// by_self: trueè¡¨ç¤ºä¸»åŠ¨è¯·æ±‚çš„å…³é—­æ“ä½œ
 void ClientSession::OnClosed(bool by_self, sframe::Error err)
 {
 	std::shared_ptr<ClientSession> session = shared_from_this();
@@ -53,7 +53,7 @@ void ClientSession::OnClosed(bool by_self, sframe::Error err)
 
 
 ClientSession::ClientSession(GateService * gate_service, int64_t session_id, const std::shared_ptr<sframe::TcpSocket> & sock)
-	: _sock(sock), _gate_service(gate_service), _session_id(session_id), _cur_work_sid(0)
+	: _gate_service(gate_service), _sock(sock), _session_id(session_id), _cur_work_sid(0)
 {
 	_sock->SetMonitor(this);
 	_sock->StartRecv();

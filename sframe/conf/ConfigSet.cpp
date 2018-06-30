@@ -1,4 +1,4 @@
-
+ï»¿
 #include <memory.h>
 #include <assert.h>
 #include <sstream>
@@ -29,8 +29,8 @@ ConfigSet::~ConfigSet()
 	}
 }
 
-// ¼ÓÔØ(È«²¿³É¹¦·µ»Øtrue, Ö»ÒªÓĞÒ»¸öÊ§°Ü¶¼»á·µ»Øfalse)
-// ³ö´íÊ±£¬err_info»á·µ»Ø³ö´íµÄÅäÖÃĞÅÏ¢
+// åŠ è½½(å…¨éƒ¨æˆåŠŸè¿”å›true, åªè¦æœ‰ä¸€ä¸ªå¤±è´¥éƒ½ä¼šè¿”å›false)
+// å‡ºé”™æ—¶ï¼Œerr_infoä¼šè¿”å›å‡ºé”™çš„é…ç½®ä¿¡æ¯
 bool ConfigSet::Load(const std::string & path, std::vector<std::string> * vec_err_msg)
 {
 	if (path.empty() || !_config.empty())
@@ -44,14 +44,14 @@ bool ConfigSet::Load(const std::string & path, std::vector<std::string> * vec_er
 
 	bool ret = true;
 
-	// ¼ÓÔØÅäÖÃ
+	// åŠ è½½é…ç½®
 	for (auto & pr : _config_load_helper)
 	{
 		LoadItem item;
 		item.conf_id = pr.first;
 		item.load_helper = &pr.second;
 
-		// ¼ÓÔØ
+		// åŠ è½½
 		std::vector<std::string> vec_err_files;
 		item.conf_unit = (this->*item.load_helper->func_load)(item.load_helper->conf_file_name, &vec_err_files);
 		if (item.conf_unit == nullptr)
@@ -71,7 +71,7 @@ bool ConfigSet::Load(const std::string & path, std::vector<std::string> * vec_er
 
 		vec_load_items.push_back(item);
 
-		// ±£´æÏÂÀ´
+		// ä¿å­˜ä¸‹æ¥
 		if (_config.insert(std::make_pair(item.conf_id, item.conf_unit)).second)
 		{
 			if (item.conf_id >= 0 && item.conf_id < kQuickFindArrLen)
@@ -85,14 +85,14 @@ bool ConfigSet::Load(const std::string & path, std::vector<std::string> * vec_er
 		}
 	}
 
-	// ¼ÓÔØÁÙÊ±ÅäÖÃ
+	// åŠ è½½ä¸´æ—¶é…ç½®
 	for (auto & load_helper : _temporary_config_load_helper)
 	{
 		LoadItem item;
 		item.conf_id = load_helper.conf_id;
 		item.load_helper = &load_helper;
 
-		// ¼ÓÔØ
+		// åŠ è½½
 		std::vector<std::string> vec_err_files;
 		item.conf_unit = (this->*item.load_helper->func_load)(item.load_helper->conf_file_name, &vec_err_files);
 		if (item.conf_unit == nullptr)
@@ -118,7 +118,7 @@ bool ConfigSet::Load(const std::string & path, std::vector<std::string> * vec_er
 		return false;
 	}
 
-	// ³õÊ¼»¯ËùÓĞÅäÖÃ
+	// åˆå§‹åŒ–æ‰€æœ‰é…ç½®
 	for (auto & load_item : vec_load_items)
 	{
 		if (!(this->*load_item.load_helper->func_init)(load_item.conf_unit))

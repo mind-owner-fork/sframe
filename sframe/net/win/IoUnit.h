@@ -1,49 +1,49 @@
-
+ï»¿
 #ifndef SFRAME_IO_UNIT_H
 #define SFRAME_IO_UNIT_H
 
 #include <inttypes.h>
 #include <memory>
 #include <WinSock2.h>
-#include "../Error.h"
+#include "../../util/Error.h"
 
 namespace sframe {
 
-// IOÊÂ¼şÀàĞÍ
+// IOäº‹ä»¶ç±»å‹
 enum IoEventType :int32_t
 {
-	kIoEvent_ConnectCompleted,      // Á¬½Ó
-	kIoEvent_SendCompleted,         // ·¢ËÍ
-	kIoEvent_RecvCompleted,         // ½ÓÊÕÊı¾İ
-	kIoEvent_AcceptCompleted,       // ½ÓÊÜÁ¬½Ó
+	kIoEvent_ConnectCompleted,      // è¿æ¥
+	kIoEvent_SendCompleted,         // å‘é€
+	kIoEvent_RecvCompleted,         // æ¥æ”¶æ•°æ®
+	kIoEvent_AcceptCompleted,       // æ¥å—è¿æ¥
 };
 
 class IoUnit;
 
-// IOÊÂ¼ş
+// IOäº‹ä»¶
 struct IoEvent
 {
 	IoEvent(IoEventType t)
-		: evt_type(t), err(kErrorCode_Success)
+		: evt_type(t), err(Error::kErrorCode_Succ)
 	{
 		memset(&ol, 0, sizeof(ol));
 	}
 
 	OVERLAPPED ol;
-	const IoEventType evt_type;   // ÊÂ¼şÀàĞÍ
-	std::shared_ptr<IoUnit> io_unit; // ÓÃÓÚ¹ØÁªIoUnit¶ÔÏó£¬IO·şÎñÓÃ´Ë½øĞĞÍê³ÉÊÂ¼şÍ¨Öª£¬Í¬Ê±±£Ö¤ÔÚÒ»´Î²Ù×÷Íê³ÉÖ®Ç°¶ÔÏó²»»á±»Îö¹¹µô
-	Error err;                    // ´íÎóÂë
-	int32_t data_len;             // Êı¾İ³¤¶È
+	const IoEventType evt_type;   // äº‹ä»¶ç±»å‹
+	std::shared_ptr<IoUnit> io_unit; // ç”¨äºå…³è”IoUnitå¯¹è±¡ï¼ŒIOæœåŠ¡ç”¨æ­¤è¿›è¡Œå®Œæˆäº‹ä»¶é€šçŸ¥ï¼ŒåŒæ—¶ä¿è¯åœ¨ä¸€æ¬¡æ“ä½œå®Œæˆä¹‹å‰å¯¹è±¡ä¸ä¼šè¢«ææ„æ‰
+	Error err;                    // é”™è¯¯ç 
+	int32_t data_len;             // æ•°æ®é•¿åº¦
 };
 
-// IOÏûÏ¢ÀàĞÍ
+// IOæ¶ˆæ¯ç±»å‹
 enum IoMsgType : int32_t
 {
-	kIoMsgType_Close,        // ¹Ø±Õ
-	kIoMsgType_NotifyError,  // ´íÎóÍ¨Öª
+	kIoMsgType_Close,        // å…³é—­
+	kIoMsgType_NotifyError,  // é”™è¯¯é€šçŸ¥
 };
 
-// IOÏûÏ¢
+// IOæ¶ˆæ¯
 struct IoMsg
 {
 	IoMsg(IoMsgType t) : msg_type(t) {}
@@ -54,7 +54,7 @@ struct IoMsg
 
 class IoService;
 
-// Ioµ¥Ôª
+// Ioå•å…ƒ
 class IoUnit
 {
 public:

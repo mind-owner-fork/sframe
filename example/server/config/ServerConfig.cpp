@@ -1,4 +1,4 @@
-
+ï»¿
 #include <assert.h>
 #include <algorithm>
 #include <sstream>
@@ -123,7 +123,7 @@ void ServerConfig::Fill(const json11::Json & reader)
 	JSON_FILLFIELD_DEFAULT(thread_num, 2);
 	thread_num = std::max(1, thread_num);
 
-	std::string str_listen_service; // ·şÎñ¼àÌıµØÖ·
+	std::string str_listen_service; // æœåŠ¡ç›‘å¬åœ°å€
 	Json_FillField(reader, "listen_service", str_listen_service);
 	listen_service = std::make_shared<NetAddrInfo>();
 	if (!listen_service->ParseFormString(str_listen_service))
@@ -131,7 +131,7 @@ void ServerConfig::Fill(const json11::Json & reader)
 		listen_service.reset();
 	}
 
-	std::string str_listen_admin; // ¹ÜÀí¼àÌıµØÖ·
+	std::string str_listen_admin; // ç®¡ç†ç›‘å¬åœ°å€
 	Json_FillField(reader, "listen_admin", str_listen_admin);
 	listen_admin = std::make_shared<NetAddrInfo>();
 	if (!listen_admin->ParseFormString(str_listen_admin))
@@ -139,7 +139,7 @@ void ServerConfig::Fill(const json11::Json & reader)
 		listen_admin.reset();
 	}
 
-	std::unordered_map<std::string, std::string> map_service; // ·şÎñĞÅÏ¢
+	std::unordered_map<std::string, std::string> map_service; // æœåŠ¡ä¿¡æ¯
 	Json_FillField(reader, "service", map_service);
 	for (auto & it : map_service)
 	{
@@ -161,7 +161,7 @@ void ServerConfig::Fill(const json11::Json & reader)
 		type_to_services[s_info->service_type_name][sid] = s_info;
 	}
 
-	// ×Ô¶¨Òå¼àÌıµØÖ·(·şÎñÀàĞÍ->µØÖ·ÁĞ±í)
+	// è‡ªå®šä¹‰ç›‘å¬åœ°å€(æœåŠ¡ç±»å‹->åœ°å€åˆ—è¡¨)
 	std::unordered_map<std::string, std::vector<std::string>> map_listen_custom;
 	Json_FillField(reader, "listen_custom", map_listen_custom);
 	for (auto & pr : map_listen_custom)
@@ -169,7 +169,7 @@ void ServerConfig::Fill(const json11::Json & reader)
 		std::string serv_type_name = pr.first;
 		assert(!serv_type_name.empty());
 
-		// ±¾µØ·şÎñÖĞ±ØĞëÓĞ¸Ã·şÎñ
+		// æœ¬åœ°æœåŠ¡ä¸­å¿…é¡»æœ‰è¯¥æœåŠ¡
 		if (!HaveLocalService(serv_type_name))
 		{
 			continue;

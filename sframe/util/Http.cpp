@@ -1,4 +1,4 @@
-
+ï»¿
 #include <algorithm>
 #include "Http.h"
 #include "Convert.h"
@@ -6,7 +6,7 @@
 
 using namespace sframe;
 
-// ±ê×¼»¯Í·²¿Key
+// æ ‡å‡†åŒ–å¤´éƒ¨Key
 std::string Http::StandardizeHeaderKey(const std::string & key)
 {
 	static const char kUpperLower = 'a' - 'A';
@@ -33,7 +33,7 @@ std::string Http::StandardizeHeaderKey(const std::string & key)
 	return standardized_key;
 }
 
-// URL±àÂë
+// URLç¼–ç 
 std::string Http::UrlEncode(const std::string & str)
 {
 	static char sHexTable[17] = "0123456789ABCDEF";
@@ -59,7 +59,7 @@ std::string Http::UrlEncode(const std::string & str)
 	return oss.str();
 }
 
-// URL½âÂë
+// URLè§£ç 
 std::string Http::UrlDecode(const std::string & str)
 {
 	std::ostringstream oss;
@@ -96,7 +96,7 @@ std::string Http::UrlDecode(const std::string & str)
 	return oss.str();
 }
 
-// ½âÎöHTTP²ÎÊı
+// è§£æHTTPå‚æ•°
 Http::Param Http::ParseHttpParam(const std::string para_str)
 {
 	Http::Param para;
@@ -156,7 +156,7 @@ Http::Param Http::ParseHttpParam(const std::string para_str)
 	return para;
 }
 
-// HttpParam×ª»»Îªstring
+// HttpParamè½¬æ¢ä¸ºstring
 std::string Http::HttpParamToString(const Http::Param & para)
 {
 	std::ostringstream oss;
@@ -497,7 +497,7 @@ size_t HttpDecoder::DecodeFirstLine(const char * data, size_t len, std::string &
 	StrLocation loc_word1 = { 0 };
 	StrLocation loc_word2 = { 0 };
 	StrLocation loc_word3 = { 0 };
-	int cur_read = 0;   //ÕıÔÚ¶ÁÊ²Ã´, 0.ÇëÇó·½·¨, 1.URL, 2. Ğ­Òé°æ±¾, 3. Íê³É
+	int cur_read = 0;   //æ­£åœ¨è¯»ä»€ä¹ˆ, 0.è¯·æ±‚æ–¹æ³•, 1.URL, 2. åè®®ç‰ˆæœ¬, 3. å®Œæˆ
 	size_t readed = 0;
 
 	for (size_t i = 0; i < len; i++)
@@ -585,7 +585,7 @@ size_t HttpDecoder::DecodeFirstLine(const char * data, size_t len, std::string &
 		_http_response->SetStatusDesc(std::string(data + loc_word3.start_index, loc_word3.len));
 	}
 
-	// ×ª»»×´Ì¬Îª½âÎöÇëÇóÍ·²¿
+	// è½¬æ¢çŠ¶æ€ä¸ºè§£æè¯·æ±‚å¤´éƒ¨
 	_state = kDecodeState_HttpHeader;
 
 	return readed;
@@ -639,7 +639,7 @@ size_t HttpDecoder::DecodeHttpHeader(const char * data, size_t len, std::string 
 		}
 		else
 		{
-			// ¿ÕĞĞ, ½âÎöÍ·²¿½áÊø£¬È·¶¨ÊÇ·ñÓĞÊı¾İ²¿·Ö
+			// ç©ºè¡Œ, è§£æå¤´éƒ¨ç»“æŸï¼Œç¡®å®šæ˜¯å¦æœ‰æ•°æ®éƒ¨åˆ†
 			const std::string trans_encoding = ToLower(GetHeader("Transfer-Encoding"));
 			if (trans_encoding == "chunked")
 			{
@@ -675,7 +675,7 @@ size_t HttpDecoder::DecodeHttpHeader(const char * data, size_t len, std::string 
 				}
 			}
 
-			// ÍË³öÑ­»·
+			// é€€å‡ºå¾ªç¯
 			break;
 		}
 	}
@@ -710,14 +710,14 @@ size_t HttpDecoder::DecodeContent(const char * data, size_t len, std::string & e
 
 		while (surplus > 2)
 		{
-			// ¿éµÄ³¤¶È
+			// å—çš„é•¿åº¦
 			uint32_t chunk_len = 0;
 			char chunk_len_str[9];
 			int chunk_len_str_len = 0;
 
 			while (surplus >= 2 && !(p[0] == '\r' && p[1] == '\n'))
 			{
-				if (chunk_len_str_len < (sizeof(chunk_len_str) - 1))
+				if (chunk_len_str_len < ((int)sizeof(chunk_len_str) - 1))
 				{
 					chunk_len_str[chunk_len_str_len++] = p[0];
 				}
@@ -725,7 +725,7 @@ size_t HttpDecoder::DecodeContent(const char * data, size_t len, std::string & e
 				p++;
 			}
 
-			// ³¤¶ÈÊÇ·ñ¶ÁÈ¡ÍêÈ«
+			// é•¿åº¦æ˜¯å¦è¯»å–å®Œå…¨
 			if (!(p[0] == '\r' && p[1] == '\n'))
 			{
 				break;
@@ -734,14 +734,14 @@ size_t HttpDecoder::DecodeContent(const char * data, size_t len, std::string & e
 			surplus -= 2;
 			p += 2;
 
-			// ×ª»»chunk_len
+			// è½¬æ¢chunk_len
 			if (chunk_len_str_len > 0)
 			{
 				chunk_len_str[chunk_len_str_len] = 0;
 				chunk_len = (uint32_t)strtol(chunk_len_str, nullptr, 16);
 			}
 
-			// Êı¾İÈô²»¹»
+			// æ•°æ®è‹¥ä¸å¤Ÿ
 			if (surplus < chunk_len + 2)
 			{
 				break;
@@ -756,10 +756,10 @@ size_t HttpDecoder::DecodeContent(const char * data, size_t len, std::string & e
 			surplus -= (chunk_len + 2);
 			p += (chunk_len + 2);
 
-			// chunk_len Îª0£¬±íÊÇÎª½áÎ²µÄchunk
+			// chunk_len ä¸º0ï¼Œè¡¨æ˜¯ä¸ºç»“å°¾çš„chunk
 			if (chunk_len == 0)
 			{
-				_remain_content_len = 0; // ¶ÁÈ¡Íê³É
+				_remain_content_len = 0; // è¯»å–å®Œæˆ
 				break;
 			}
 		}
@@ -773,7 +773,7 @@ size_t HttpDecoder::DecodeContent(const char * data, size_t len, std::string & e
 		}
 		else
 		{
-			_remain_content_len = 0;    // ÄÚÈİ¶ÁÈ¡½áÊø
+			_remain_content_len = 0;    // å†…å®¹è¯»å–ç»“æŸ
 		}
 	}
 	else
@@ -781,7 +781,7 @@ size_t HttpDecoder::DecodeContent(const char * data, size_t len, std::string & e
 		assert(false);
 	}
 
-	// Êı¾İ²¿·ÖÊÇ·ñÍê³É
+	// æ•°æ®éƒ¨åˆ†æ˜¯å¦å®Œæˆ
 	if (_remain_content_len == 0)
 	{
 		_state = kDecodeState_Completed;

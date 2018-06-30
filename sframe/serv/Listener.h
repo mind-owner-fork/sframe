@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_LISTENER_H
 #define SFRAME_LISTENER_H
 
@@ -13,7 +13,7 @@
 
 namespace sframe {
 
-// TCPÁ¬½Ó´¦ÀíÆ÷
+// TCPè¿æ¥å¤„ç†å™¨
 class TcpConnHandler
 {
 public:
@@ -24,7 +24,7 @@ public:
 	virtual void HandleTcpConn(const std::shared_ptr<TcpSocket> & sock, const ListenAddress & listen_addr) = 0;
 };
 
-// ·şÎñTCPÁ¬½Ó´¦ÀíÆ÷¡ª¡ª½«Á¬½Ó·¢ËÍ¸øÖ¸¶¨µÄ·şÎñÀ´´¦Àí
+// æœåŠ¡TCPè¿æ¥å¤„ç†å™¨â€”â€”å°†è¿æ¥å‘é€ç»™æŒ‡å®šçš„æœåŠ¡æ¥å¤„ç†
 class ServiceTcpConnHandler : public TcpConnHandler
 {
 public:
@@ -54,7 +54,7 @@ private:
 	std::set<int32_t>::iterator _it_cur_sid;
 };
 
-// ¼àÌıÆ÷
+// ç›‘å¬å™¨
 class Listener : public TcpAcceptor::Monitor, public noncopyable
 {
 public:
@@ -67,10 +67,10 @@ public:
 
 	void Stop();
 
-	// Á¬½ÓÍ¨Öª
+	// è¿æ¥é€šçŸ¥
 	void OnAccept(std::shared_ptr<TcpSocket> socket, Error err) override;
 
-	// Í£Ö¹
+	// åœæ­¢
 	void OnClosed(Error err) override;
 
 

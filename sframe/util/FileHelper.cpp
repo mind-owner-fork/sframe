@@ -1,6 +1,7 @@
-
+ï»¿
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 #include <utility>
 #include "FileHelper.h"
 #include "StringHelper.h"
@@ -11,17 +12,19 @@
 #pragma comment(lib, "shlwapi")
 #pragma warning(disable:4996)
 #else
+#include <unistd.h>
 #include <sys/types.h> 
 #include <sys/stat.h>
 #include <dirent.h>
+#include <fcntl.h>
 #endif
 
 using namespace sframe;
 
-// ¶ÁÈ¡ÎÄ¼şËùÓĞÄÚÈİ
+// è¯»å–æ–‡ä»¶æ‰€æœ‰å†…å®¹
 bool FileHelper::ReadFile(const std::string & full_name, std::string & content)
 {
-	FILE * f = fopen(full_name.c_str(), "r");
+	FILE * f = fopen(full_name.c_str(), "rb");
 	if (!f)
 	{
 		return false;
@@ -61,10 +64,10 @@ bool FileHelper::ReadFile(const std::string & full_name, std::string & content)
 	return true;
 }
 
-// Ğ´ÈëÎÄ¼ş
+// å†™å…¥æ–‡ä»¶
 size_t FileHelper::WriteFile(const std::string & full_name, std::string & content)
 {
-	FILE * f = fopen(full_name.c_str(), "w");
+	FILE * f = fopen(full_name.c_str(), "wb");
 	if (!f)
 	{
 		return 0;
@@ -76,7 +79,7 @@ size_t FileHelper::WriteFile(const std::string & full_name, std::string & conten
 	return s;
 }
 
-// ÔÚÈ«Â·¾¢ÖĞ»ñÈ¡ÎÄ¼şÃû
+// åœ¨å…¨è·¯åŠ²ä¸­è·å–æ–‡ä»¶å
 std::string FileHelper::GetFileName(const char * fullname)
 {
 	const char * file = fullname;
@@ -94,14 +97,14 @@ std::string FileHelper::GetFileName(const char * fullname)
 	return std::string(file);
 }
 
-// È¥³ıÎÄ¼şÀ©Õ¹Ãû
+// å»é™¤æ–‡ä»¶æ‰©å±•å
 std::string FileHelper::RemoveExtension(const std::string & name)
 {
 	size_t pos = name.find_last_of('.');
 	return (pos == std::string::npos ? name : name.substr(0, pos));
 }
 
-// Ä¿Â¼ÊÇ·ñ´æÔÚ
+// ç›®å½•æ˜¯å¦å­˜åœ¨
 bool FileHelper::DirectoryExisted(const std::string & path)
 {
 	bool result = false;
@@ -120,7 +123,7 @@ bool FileHelper::DirectoryExisted(const std::string & path)
 	return result;
 }
 
-// ´´½¨Ä¿Â¼
+// åˆ›å»ºç›®å½•
 bool FileHelper::MakeDirectory(const std::string & path)
 {
 #ifndef __GNUC__
@@ -130,7 +133,7 @@ bool FileHelper::MakeDirectory(const std::string & path)
 #endif
 }
 
-// È·±£Â·¾¶´æÔÚ
+// ç¡®ä¿è·¯å¾„å­˜åœ¨
 bool FileHelper::MakeDirectoryRecursive(const std::string & path)
 {
 	if (DirectoryExisted(path))
@@ -172,9 +175,9 @@ static int SelectOnlyNotDir(const dirent * d)
 
 #endif
 
-// É¨ÃèÄ¿Â¼
-// dir_path   :   Ä¿Â¼Â·¾¶£¬²»ÄÜ°üº¬Í¨Åä·û
-// match_name :   Ãû×ÖÆ¥Åä£¬Ö§³ÖÍ¨Åä·û£¬±ÈÈçÒªÉ¨Ãè /data Ä¿Â¼ÏÂ£¬ËùÓĞ·ûºÏ*.cppµÄÃû×ÖµÄÄÚÈİ£¬µ÷ÓÃScanDirectory("/data", "*.cpp")
+// æ‰«æç›®å½•
+// dir_path   :   ç›®å½•è·¯å¾„ï¼Œä¸èƒ½åŒ…å«é€šé…ç¬¦
+// match_name :   åå­—åŒ¹é…ï¼Œæ”¯æŒé€šé…ç¬¦ï¼Œæ¯”å¦‚è¦æ‰«æ /data ç›®å½•ä¸‹ï¼Œæ‰€æœ‰ç¬¦åˆ*.cppçš„åå­—çš„å†…å®¹ï¼Œè°ƒç”¨ScanDirectory("/data", "*.cpp")
 std::vector<std::string> FileHelper::ScanDirectory(const std::string & dir_path, const std::string & match_name, ScanType scan_type)
 {
 	std::vector<std::string> vec;
@@ -239,6 +242,8 @@ std::vector<std::string> FileHelper::ScanDirectory(const std::string & dir_path,
 	case sframe::FileHelper::kScanType_OnlyNotDirectory:
 		selector = &SelectOnlyNotDir;
 		break;
+	default:
+		break;
 	}
 
 	struct dirent **namelist;
@@ -264,9 +269,9 @@ std::vector<std::string> FileHelper::ScanDirectory(const std::string & dir_path,
 	return vec;
 }
 
-// Õ¹¿ªÍ¨Åä·û£¨* ?£©
-// path: Â·¾¶£¬×îºóÊÇ·ñÒÔ/½áÎ²£¬±íÊ¾ÎÄ¼ş£¬·ñÔòÎªÄ¿Â¼
-// parent_dir: ËùÔÚÄ¿Â¼
+// å±•å¼€é€šé…ç¬¦ï¼ˆ* ?ï¼‰
+// path: è·¯å¾„ï¼Œæœ€åæ˜¯å¦ä»¥/ç»“å°¾ï¼Œè¡¨ç¤ºæ–‡ä»¶ï¼Œå¦åˆ™ä¸ºç›®å½•
+// parent_dir: æ‰€åœ¨ç›®å½•
 std::vector<std::string> FileHelper::ExpandWildcard(const std::string & path, const std::string & parent_dir)
 {
 	std::string p_dir;
@@ -372,3 +377,53 @@ std::vector<std::string> FileHelper::ExpandWildcard(const std::string & path, co
 
 	return vec_real_file_name;
 }
+
+#ifdef __GNUC__
+
+// å†™PIDæ–‡ä»¶
+Error FileHelper::WritePidFile(const std::string & file_name, bool wr_lock)
+{
+	static int fd = -1;
+
+	if (fd > 0)
+	{
+		close(fd);
+		fd = -1;
+	}
+
+	fd = open(file_name.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
+	if (fd < 0)
+	{
+		return Error(errno);
+	}
+
+	int pid = getpid();
+
+	flock fl;
+	fl.l_type = F_WRLCK;
+	fl.l_whence = SEEK_SET;
+	fl.l_pid = pid;
+	fl.l_start = 0;
+	fl.l_len = 0;
+	if (fcntl(fd, F_SETLK, &fl) < 0)
+	{
+		close(fd);
+		fd = -1;
+		return Error(errno);
+	}
+
+	char pid_text[32];
+	sprintf(pid_text, "%d", pid);
+
+	ssize_t write_size = write(fd, pid_text, strlen(pid_text));
+	if (write_size < 0)
+	{
+		close(fd);
+		fd = -1;
+		return Error(errno);
+	}
+
+	return ErrorSuccess;
+}
+
+#endif

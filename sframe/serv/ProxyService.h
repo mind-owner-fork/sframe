@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_PROXY_SERVICE_H
 #define SFRAME_PROXY_SERVICE_H
 
@@ -13,10 +13,14 @@
 
 namespace sframe {
 
-// ´úÀí·şÎñ
+// ä»£ç†æœåŠ¡
 class ProxyService : public Service
 {
 public:
+
+	static const std::string kAdminAddrDescName;
+
+
 
 	ProxyService();
 
@@ -33,20 +37,20 @@ public:
 		return 1000;
 	}
 
-	// ´¦ÀíÖÜÆÚ¶¨Ê±Æ÷
+	// å¤„ç†å‘¨æœŸå®šæ—¶å™¨
 	void OnCycleTimer() override;
 
-	// ĞÂÁ¬½Óµ½À´
+	// æ–°è¿æ¥åˆ°æ¥
 	void OnNewConnection(const ListenAddress & listen_addr_info, const std::shared_ptr<sframe::TcpSocket> & sock) override;
 
-	// ´úÀí·şÎñÏûÏ¢
+	// ä»£ç†æœåŠ¡æ¶ˆæ¯
 	void OnProxyServiceMessage(const std::shared_ptr<ProxyServiceMessage> & msg) override;
 
-	// ×¢²á»á»°
-	// ·µ»Ø»á»°ID£¨´óÓÚ0µÄÕûÊı£©£¬·ñÔòÎªÊ§°Ü
+	// æ³¨å†Œä¼šè¯
+	// è¿”å›ä¼šè¯IDï¼ˆå¤§äº0çš„æ•´æ•°ï¼‰ï¼Œå¦åˆ™ä¸ºå¤±è´¥
 	int32_t RegistSession(int32_t sid, const std::string & remote_ip, uint16_t remote_port);
 
-	// ×¢²á¹ÜÀíÃüÁî´¦Àí·½·¨
+	// æ³¨å†Œç®¡ç†å‘½ä»¤å¤„ç†æ–¹æ³•
 	void RegistAdminCmd(const std::string & cmd, const AdminCmdHandleFunc & func);
 
 private:
@@ -73,17 +77,17 @@ private:
 
 	static const int kQuickFindSessionArrLen = 512;
 
-	ServiceSession * _quick_find_session_arr[kQuickFindSessionArrLen];          // ½«session_idĞ¡ÓÚkQuickFindSessionArrLenµÄsession¸´ÖÆÒ»·İ£¬ÓÃÓÚ¿ìËÙ²éÕÒ
-	std::unordered_map<int32_t, ServiceSession*> _all_sessions;                 // ËùÓĞServiceSession
+	ServiceSession * _quick_find_session_arr[kQuickFindSessionArrLen];          // å°†session_idå°äºkQuickFindSessionArrLençš„sessionå¤åˆ¶ä¸€ä»½ï¼Œç”¨äºå¿«é€ŸæŸ¥æ‰¾
+	std::unordered_map<int32_t, ServiceSession*> _all_sessions;                 // æ‰€æœ‰ServiceSession
 	bool _have_no_session;
-	std::unordered_map<int64_t, int32_t> _session_addr_to_sessionid;            // ¶ÔÓÚÖ÷¶¯Á¬½ÓµÄSession£¬Ä¿±êµØÖ·µ½sessionidµÄÓ³Éä
-	std::unordered_map<int32_t, int32_t> _sid_to_sessionid;                     // Ô¶³Ì·şÎñIDÓ³Éäµ½»á»°ID
-	std::unordered_map<int32_t, std::unordered_set<int32_t>> _sessionid_to_sid; // »á»°IDÓ³Éäµ½·şÎñID
-	bool _listening;                                                            // ÊÇ·ñÕıÔÚ¼àÌı
-	TimerManager _timer_mgr;                                                    // ¶¨Ê±Æ÷¹ÜÀí
+	std::unordered_map<int64_t, int32_t> _session_addr_to_sessionid;            // å¯¹äºä¸»åŠ¨è¿æ¥çš„Sessionï¼Œç›®æ ‡åœ°å€åˆ°sessionidçš„æ˜ å°„
+	std::unordered_map<int32_t, int32_t> _sid_to_sessionid;                     // è¿œç¨‹æœåŠ¡IDæ˜ å°„åˆ°ä¼šè¯ID
+	std::unordered_map<int32_t, std::unordered_set<int32_t>> _sessionid_to_sid; // ä¼šè¯IDæ˜ å°„åˆ°æœåŠ¡ID
+	bool _listening;                                                            // æ˜¯å¦æ­£åœ¨ç›‘å¬
+	TimerManager _timer_mgr;                                                    // å®šæ—¶å™¨ç®¡ç†
 	int32_t _cur_max_session_id;
 	bool _session_id_first_loop;
-	std::unordered_map<std::string, AdminCmdHandleFunc> _map_admin_cmd_func;    // ¹ÜÀíÃüÁî´¦Àí·½·¨
+	std::unordered_map<std::string, AdminCmdHandleFunc> _map_admin_cmd_func;    // ç®¡ç†å‘½ä»¤å¤„ç†æ–¹æ³•
 };
 
 }

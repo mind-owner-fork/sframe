@@ -43,7 +43,7 @@ public:
 
 	struct LogDataChunk
 	{
-		static const int32_t kDefaultChunkSize = 1024 * 4;
+		static const int32_t kDefaultChunkSize = 256 * 16;
 
 		LogDataChunk() : cur_size(0), time(0) {}
 
@@ -89,7 +89,7 @@ class LoggerMgr : public singleton<LoggerMgr>
 {
 public:
 
-	LoggerMgr() : _is_running(false), _flush_log_thread(nullptr) {}
+	LoggerMgr() : _flush_log_thread(nullptr), _is_running(false) {}
 
 	~LoggerMgr();
 

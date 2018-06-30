@@ -1,10 +1,10 @@
-
+ï»¿
 #ifndef SFRAME_PROXY_SERVICE_MSG_H
 #define SFRAME_PROXY_SERVICE_MSG_H
 
 namespace sframe {
 
-// ´úÀí·şÎñÏûÏ¢ºÅ
+// ä»£ç†æœåŠ¡æ¶ˆæ¯å·
 enum ProxyServiceMsgId
 {
 	kProxyServiceMsgId_SessionClosed = 1,

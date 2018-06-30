@@ -1,4 +1,4 @@
-
+ï»¿
 #include "serv/ServiceDispatcher.h"
 #include "WorkService.h"
 #include "util/Log.h"
@@ -8,7 +8,7 @@ using namespace sframe;
 
 #define MAKE_KEY(_gatesid, _sessionid) (((uint64_t)(_gatesid) << 32) | ((uint64_t)(_sessionid) & 0x00000000ffffffff))
 
-// ³õÊ¼»¯£¨´´½¨·þÎñ³É¹¦ºóµ÷ÓÃ£¬´ËÊ±»¹Î´¿ªÊ¼ÔËÐÐ£©
+// åˆå§‹åŒ–ï¼ˆåˆ›å»ºæœåŠ¡æˆåŠŸåŽè°ƒç”¨ï¼Œæ­¤æ—¶è¿˜æœªå¼€å§‹è¿è¡Œï¼‰
 void WorkService::Init()
 {
 	RegistServiceMessageHandler(kWorkMsg_EnterWorkService, &WorkService::OnMsg_EnterWorkService, this);

@@ -1,4 +1,4 @@
-
+ï»¿
 #include <assert.h>
 #include "serv/ServiceDispatcher.h"
 #include "GateService.h"
@@ -6,14 +6,14 @@
 #include "util/RandomHelper.h"
 #include "../config/ServerConfig.h"
 
-// ³õÊ¼»¯£¨´´½¨·şÎñ³É¹¦ºóµ÷ÓÃ£¬´ËÊ±»¹Î´¿ªÊ¼ÔËĞĞ£©
+// åˆå§‹åŒ–ï¼ˆåˆ›å»ºæœåŠ¡æˆåŠŸåè°ƒç”¨ï¼Œæ­¤æ—¶è¿˜æœªå¼€å§‹è¿è¡Œï¼‰
 void GateService::Init()
 {
 	RegistInsideServiceMessageHandler(kGateMsg_SessionClosed, &GateService::OnMsg_SessionClosed, this);
 	RegistInsideServiceMessageHandler(kGateMsg_SessionRecvData, &GateService::OnMsg_SessionRecvData, this);
 	RegistServiceMessageHandler(kGateMsg_SendToClient, &GateService::OnMsg_SendToClient, this);
 
-	// »ñÈ¡ÅäÖÃµÄËùÓĞÂß¼­·şÎñ
+	// è·å–é…ç½®çš„æ‰€æœ‰é€»è¾‘æœåŠ¡
 	auto & gate_services = ServerConfig::Instance().type_to_services["WorkService"];
 	for (auto & it_pair : gate_services)
 	{
@@ -21,7 +21,7 @@ void GateService::Init()
 	}
 }
 
-// ĞÂÁ¬½Óµ½À´
+// æ–°è¿æ¥åˆ°æ¥
 void GateService::OnNewConnection(const sframe::ListenAddress & listen_addr_info, const std::shared_ptr<sframe::TcpSocket> & sock)
 {
 	sframe::Error err = sock->SetTcpNodelay(true);
@@ -46,7 +46,7 @@ void GateService::OnNewConnection(const sframe::ListenAddress & listen_addr_info
 	FLOG(GetLogName()) << "NewSession|" << sessionid << "|WorkService|" << work_service << ENDL;
 }
 
-// ´¦ÀíÏú»Ù
+// å¤„ç†é”€æ¯
 void GateService::OnDestroy()
 {
 	for (auto & pr : _sessions)

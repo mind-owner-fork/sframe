@@ -1,8 +1,9 @@
-
+ï»¿
 #ifndef SFRAME_SERVICE_SESSION_H
 #define SFRAME_SERVICE_SESSION_H
 
 #include <list>
+#include <atomic>
 #include "../util/Serialization.h"
 #include "../net/net.h"
 #include "../util/Singleton.h"
@@ -13,20 +14,24 @@ namespace sframe {
 
 class ProxyService;
 
-// ·şÎñ»á»°£¨Ö÷Òª´¦ÀíÓëÍøÂçÖĞµÄ·şÎñµÄÍ¨ĞÅ£©
+// æœåŠ¡ä¼šè¯ï¼ˆä¸»è¦å¤„ç†ä¸ç½‘ç»œä¸­çš„æœåŠ¡çš„é€šä¿¡ï¼‰
 class ServiceSession : public TcpSocket::Monitor, public noncopyable, public SafeTimerRegistor<ServiceSession>
 {
 public:
-	// »á»°×´Ì¬
+	// ä¼šè¯çŠ¶æ€
 	enum SessionState : int32_t
 	{
-		kSessionState_Initialize = 0,    // ³õÊ¼×´Ì¬
-		kSessionState_WaitConnect,       // µÈ´ıÁ¬½Ó
-		kSessionState_Connecting,        // ÕıÔÚÁ¬½Ó
-		kSessionState_Running,           // ÔËĞĞÖĞ
+		kSessionState_Initialize = 0,    // åˆå§‹çŠ¶æ€
+		kSessionState_WaitConnect,       // ç­‰å¾…è¿æ¥
+		kSessionState_Connecting,        // æ­£åœ¨è¿æ¥
+		kSessionState_Running,           // è¿è¡Œä¸­
 	};
 
-	static const int32_t kReconnectInterval = 3000;       // ×Ô¶¯ÖØÁ¬¼ä¸ô
+	static const int32_t kReconnectInterval = 10000;          // è‡ªåŠ¨é‡è¿é—´éš”(ms)
+
+	static const int32_t kSendHeartbeatInterval = 7000;       // å‘é€å¿ƒè·³é—´éš”(ms)
+
+	static const int32_t kHeartbeatTimeoutMiliSecs = 10000;   // å¿ƒè·³è¶…æ—¶æ—¶é—´(ms)
 
 public:
 	ServiceSession(int32_t id, ProxyService * proxy_service, const std::string & remote_ip, uint16_t remote_port);
@@ -37,57 +42,81 @@ public:
 
 	void Init();
 
-	// ¹Ø±Õ
+	// å…³é—­
 	void Close();
 
-	// ³¢ÊÔÊÍ·Å
+	// å°è¯•é‡Šæ”¾
 	bool TryFree();
 
-	// Á¬½ÓÍê³É´¦Àí
+	// è¿æ¥å®Œæˆå¤„ç†
 	void DoConnectCompleted(bool success);
 
-	// ·¢ËÍÊı¾İ
+	// æ”¶åˆ°å¿ƒè·³æ¶ˆæ¯
+	void DoRecvHeartbeatMsg();
+
+	// å‘é€æ•°æ®
 	void SendData(const std::shared_ptr<ProxyServiceMessage> & msg);
 
-	// ·¢ËÍÊı¾İ
+	// å‘é€æ•°æ®
 	void SendData(const char * data, size_t len);
 
-	// »ñÈ¡µØÖ·
+	// è·å–åœ°å€
 	std::string GetRemoteAddrText() const;
 
-	// ½ÓÊÕµ½Êı¾İ
-	// ·µ»ØÊ£Óà¶àÉÙÊı¾İ
+	// æ¥æ”¶åˆ°æ•°æ®
+	// è¿”å›å‰©ä½™å¤šå°‘æ•°æ®
 	virtual int32_t OnReceived(char * data, int32_t len) override;
 
-	// Socket¹Ø±Õ
-	// by_self: true±íÊ¾Ö÷¶¯ÇëÇóµÄ¹Ø±Õ²Ù×÷
+	// Socketå…³é—­
+	// by_self: trueè¡¨ç¤ºä¸»åŠ¨è¯·æ±‚çš„å…³é—­æ“ä½œ
 	virtual void OnClosed(bool by_self, Error err) override;
 
-	// Á¬½Ó²Ù×÷Íê³É
+	// è¿æ¥æ“ä½œå®Œæˆ
 	virtual void OnConnected(Error err) override;
 
-	// »ñÈ¡SessionId
+	// è·å–SessionId
 	int32_t GetSessionId()
 	{
 		return _session_id;
 	}
 
-	// »ñÈ¡×´Ì¬
+	// è·å–çŠ¶æ€
 	SessionState GetState() const
 	{
 		return _state;
 	}
 
+	// å¼€å¯å¿ƒè·³
+	void OpenHeartbeat(bool open_heartbeat)
+	{
+		_open_heartbeat = open_heartbeat;
+	}
+
 private:
 
-	// ¿ªÊ¼Á¬½Ó¶¨Ê±Æ÷
+	// å¼€å§‹è¿æ¥å®šæ—¶å™¨
 	void SetConnectTimer(int32_t after_ms);
 
-	// ¶¨Ê±£ºÁ¬½Ó
+	// å¼€å§‹å‘é€å¿ƒè·³æ¶ˆæ¯å®šæ—¶å™¨
+	void SetSendHeartbeatTimer();
+
+	// å¼€å§‹æ£€æµ‹å¿ƒè·³è¶…æ—¶å®šæ—¶å™¨
+	void SetCheckHeartbeatTimeoutTimer();
+
+	// å®šæ—¶ï¼šè¿æ¥
 	int32_t OnTimer_Connect();
 
-	// ¿ªÊ¼Á¬½Ó
+	// å®šæ—¶ï¼šå‘é€å¿ƒè·³åŒ…
+	int32_t OnTimer_SendHeartbeat();
+
+	// å®šæ—¶ï¼šæ£€æµ‹å¿ƒè·³è¶…æ—¶
+	int32_t OnTimer_CheckHeartbeatTimeout();
+
+	// å¼€å§‹è¿æ¥
 	void StartConnect();
+
+	// å‘é€å¿ƒè·³åŒ…
+	void SendHeartbeatMsg();
 
 private:
 	ProxyService * _proxy_service;
@@ -95,6 +124,8 @@ private:
 	int32_t _session_id;
 	SessionState _state;
 	TimerHandle _connect_timer;
+	TimerHandle _send_heartbeat_timer;
+	TimerHandle _check_heartbeat_timeout_timer;
 	std::list<std::shared_ptr<ProxyServiceMessage>> _msg_cache;
 	bool _reconnect;
 	std::string _remote_ip;
@@ -102,21 +133,26 @@ private:
 	std::shared_ptr<std::vector<char>> _cur_msg_data;
 	size_t _cur_msg_size;
 	size_t _cur_msg_readed_size;
+	int64_t _last_recv_heartbeat_time;
+	bool _open_heartbeat;
 };
 
 
-// ¹ÜÀí»á»°
+// ç®¡ç†ä¼šè¯
 class AdminSession : public ServiceSession
 {
 public:
 
 	AdminSession(int32_t id, ProxyService * proxy_service, const std::shared_ptr<TcpSocket> & sock)
-		: ServiceSession(id, proxy_service, sock) {}
+		: ServiceSession(id, proxy_service, sock)
+	{
+		OpenHeartbeat(false);
+	}
 
 	virtual ~AdminSession() {}
 
-	// ½ÓÊÕµ½Êı¾İ
-	// ·µ»ØÊ£Óà¶àÉÙÊı¾İ
+	// æ¥æ”¶åˆ°æ•°æ®
+	// è¿”å›å‰©ä½™å¤šå°‘æ•°æ®
 	virtual int32_t OnReceived(char * data, int32_t len) override;
 
 private:

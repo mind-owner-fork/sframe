@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_CONFIG_META_H
 #define SFRAME_CONFIG_META_H
 
@@ -19,7 +19,7 @@ public:
 
 };
 
-// ÅäÖÃÄ£¿é»ùÀà
+// é…ç½®æ¨¡å—åŸºç±»
 template<typename T_ConfigModel, int Conf_Id>
 class ConfigModuleT : public ConfigModule
 {
@@ -46,7 +46,7 @@ private:
 	std::shared_ptr<ModelType> _conf_obj;
 };
 
-// µ¥Ò»¶ÔÏóÅäÖÃÄ£¿é
+// å•ä¸€å¯¹è±¡é…ç½®æ¨¡å—
 template<typename T_Config, int Conf_Id>
 class ObjectConfigModule : public ConfigModuleT<T_Config, Conf_Id>
 {
@@ -54,7 +54,7 @@ public:
 	typedef T_Config ConfType;
 };
 
-// vectorÅäÖÃÄ£¿é
+// vectoré…ç½®æ¨¡å—
 template<typename T_Config, int Conf_Id>
 class VectorConfigModule : public ConfigModuleT<std::vector<std::shared_ptr<T_Config>>, Conf_Id>
 {
@@ -62,7 +62,7 @@ public:
 	typedef T_Config ConfType;
 };
 
-// setÅäÖÃÄ£¿é
+// seté…ç½®æ¨¡å—
 template<typename T_Config, int Conf_Id>
 class SetConfigModule : public ConfigModuleT<std::set<std::shared_ptr<T_Config>>, Conf_Id>
 {
@@ -70,7 +70,7 @@ public:
 	typedef T_Config ConfType;
 };
 
-// mapÅäÖÃÄ£¿é
+// mapé…ç½®æ¨¡å—
 template<typename T_Key, typename T_Config, int Conf_Id>
 class MapConfigModule : public ConfigModuleT<std::map<T_Key, std::shared_ptr<T_Config>>, Conf_Id>
 {
@@ -101,10 +101,10 @@ class GetConfigObjKey_Warpper
 	struct MethodMatcher;
 
 	template<typename R, typename T>
-	static std::true_type match(MethodMatcher<R, T, &T::GetKey>*) {}
+	static std::true_type match(MethodMatcher<R, T, &T::GetKey>*) { return std::true_type(); }
 
 	template<typename R, typename T>
-	static std::false_type match(...) {}
+	static std::false_type match(...) { return std::false_type(); }
 
 	template<typename R, typename T>
 	inline static R call(std::false_type, T & obj)
@@ -141,35 +141,35 @@ inline R GetConfigObjKey(std::shared_ptr<T> & obj)
 }
 
 
-// ÉùÃ÷µ¥Ò»¶ÔÏóÄ£ĞÍµÄÅäÖÃ
-// OBJ_CONFIG_MODULE(ÅäÖÃÄ£¿éÃû, ÅäÖÃ½á¹¹ÌåÃû, ÅäÖÃID)
+// å£°æ˜å•ä¸€å¯¹è±¡æ¨¡å‹çš„é…ç½®
+// OBJ_CONFIG_MODULE(é…ç½®æ¨¡å—å, é…ç½®ç»“æ„ä½“å, é…ç½®ID)
 #define OBJ_CONFIG_MODULE(module, conf, conf_id) class module : public sframe::ObjectConfigModule<conf, conf_id> {};
 
-// ÉùÃ÷VetorÄ£ĞÍµÄÅäÖÃ
-// VECTOR_CONFIG_MODULE(ÅäÖÃÄ£¿éÃû, ½á¹¹ÌåÃû, ÅäÖÃID)
+// å£°æ˜Vetoræ¨¡å‹çš„é…ç½®
+// VECTOR_CONFIG_MODULE(é…ç½®æ¨¡å—å, ç»“æ„ä½“å, é…ç½®ID)
 #define VECTOR_CONFIG_MODULE(module, conf, conf_id) class module : public sframe::VectorConfigModule<conf, conf_id> {};
 
-// ÉùÃ÷SetÄ£ĞÍµÄÅäÖÃ
-// SET_CONFIG_MODULE(ÅäÖÃÄ£¿éÃû, ½á¹¹ÌåÃû, ÅäÖÃID)
+// å£°æ˜Setæ¨¡å‹çš„é…ç½®
+// SET_CONFIG_MODULE(é…ç½®æ¨¡å—å, ç»“æ„ä½“å, é…ç½®ID)
 #define SET_CONFIG_MODULE(module, conf, conf_id) class module : public sframe::SetConfigModule<conf, conf_id> {};
 
-// ÉùÃ÷MapÄ£ĞÍµÄÅäÖÃ
-// MAP_CONFIG_MODULE(ÅäÖÃÄ£¿éÃû, keyÀàĞÍ, ½á¹¹ÌåÃû, ½á¹¹ÌåÖĞÓÃ×÷keyµÄ³ÉÔ±±äÁ¿Ãû, ÅäÖÃID)
+// å£°æ˜Mapæ¨¡å‹çš„é…ç½®
+// MAP_CONFIG_MODULE(é…ç½®æ¨¡å—å, keyç±»å‹, ç»“æ„ä½“å, ç»“æ„ä½“ä¸­ç”¨ä½œkeyçš„æˆå‘˜å˜é‡å, é…ç½®ID)
 #define MAP_CONFIG_MODULE(module, k, conf, conf_id) class module : public sframe::MapConfigModule<k, conf, (conf_id)> {};
 
-// ÎªMAPÀàĞÍÅäÖÃÀàÖ¸¶¨×îÎªkeyµÄ×Ö¶Î
+// ä¸ºMAPç±»å‹é…ç½®ç±»æŒ‡å®šæœ€ä¸ºkeyçš„å­—æ®µ
 #define KEY_FIELD(k_type, k_field) k_type GetKey() const {return k_field;}
 
-// »ñÈ¡ÅäÖÃkeyÀàĞÍ
+// è·å–é…ç½®keyç±»å‹
 #define CONFIG_KEY_TYPE(module) module::KeyType
 
-// »ñÈ¡ÅäÖÃÄ£ĞÍÀàĞÍ
+// è·å–é…ç½®æ¨¡å‹ç±»å‹
 #define CONFIG_MODEL_TYPE(module) module::ModelType
 
-// »ñÈ¡ÅäÖÃÀàĞÍ
+// è·å–é…ç½®ç±»å‹
 #define CONFIG_CONF_TYPE(module) module::ConfType
 
-// »ñÈ¡ÅäÖÃID
+// è·å–é…ç½®ID
 #define GET_CONFIGID(module) module::GetConfigId()
 
 #endif

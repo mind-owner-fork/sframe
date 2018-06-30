@@ -1,4 +1,4 @@
-
+ï»¿
 #include <assert.h>
 #include "Client.h"
 #include "ClientManager.h"
@@ -14,7 +14,7 @@ Client::TimerRouine Client::kStateRoutine[kState_Count] = {
 };
 
 Client::Client(int32_t id, ClientManager * mgr)
-	: _id(id), _mgr(mgr), _state(kState_WaitConnect), _server_port(0), _text_index(0), _count(0)
+	: _mgr(mgr), _id(id), _state(kState_WaitConnect), _server_port(0), _text_index(0), _count(0)
 {
 	_log_name = std::to_string(_id);
 }
@@ -36,8 +36,8 @@ void Client::Close()
 	}
 }
 
-// ½ÓÊÕµ½Êý¾Ý
-// ·µ»ØÊ£Óà¶àÉÙÊý¾Ý
+// æŽ¥æ”¶åˆ°æ•°æ®
+// è¿”å›žå‰©ä½™å¤šå°‘æ•°æ®
 int32_t Client::OnReceived(char * data, int32_t len)
 {
 	std::string s(data, len);
@@ -45,8 +45,8 @@ int32_t Client::OnReceived(char * data, int32_t len)
 	return 0;
 }
 
-// Socket¹Ø±Õ
-// by_self: true±íÊ¾Ö÷¶¯ÇëÇóµÄ¹Ø±Õ²Ù×÷
+// Socketå…³é—­
+// by_self: trueè¡¨ç¤ºä¸»åŠ¨è¯·æ±‚çš„å…³é—­æ“ä½œ
 void Client::OnClosed(bool by_self, sframe::Error err)
 {
 	if (err)
@@ -61,7 +61,7 @@ void Client::OnClosed(bool by_self, sframe::Error err)
 	_mgr->CloseClient(_id);
 }
 
-// Á¬½Ó²Ù×÷Íê³É
+// è¿žæŽ¥æ“ä½œå®Œæˆ
 void Client::OnConnected(sframe::Error err)
 {
 	if (err)
@@ -122,25 +122,27 @@ void Client::OnTimer_Working()
 	}
 
 	int64_t cur_time = sframe::TimeHelper::GetEpochMilliseconds();
-	uint16_t msg_size = 0;
-	char buf[1024];
-	sframe::StreamWriter stream_writer(buf + sizeof(msg_size), 1024 - sizeof(msg_size));
-	if (!sframe::AutoEncode(stream_writer, _id, _count, cur_time, config->text[_text_index]))
+	const std::string & send_text = config->text[_text_index];
+
+	size_t msg_size = sframe::AutoGetSize(_id, _count, cur_time, send_text);
+	size_t size_field_size = sframe::StreamWriter::GetSizeFieldSize(msg_size);
+	size_t buf_size = msg_size + size_field_size;
+	std::string buf(buf_size, 0);
+	sframe::StreamWriter stream_writer(&(buf)[0], buf.size());
+	if (!stream_writer.WriteSizeField(msg_size) || 
+		!sframe::AutoEncode(stream_writer, _id, _count, cur_time, send_text))
 	{
 		LOG_ERROR << "Encode msg error" << ENDL;
 		return;
 	}
 
-	msg_size = (uint16_t)stream_writer.GetStreamLength();
-	sframe::StreamWriter size_writer(buf, sizeof(msg_size));
-	if (!sframe::AutoEncode(size_writer, msg_size))
+	if (buf.size() != stream_writer.GetStreamLength())
 	{
-		LOG_ERROR << "Encode msg error" << ENDL;
-		return;
+		LOG_ERROR << "MsgSize error" << std::endl;
 	}
 
 	_count++;
 	_text_index++;
 
-	_sock->Send(buf, msg_size + sizeof(msg_size));
+	_sock->Send(buf.data(), buf.size());
 }

@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_TIMER_H
 #define SFRAME_TIMER_H
 
@@ -44,7 +44,7 @@ private:
 
 typedef std::shared_ptr<TimerWrapper> TimerHandle;
 
-// ¶¨Ê±Æ÷
+// å®šæ—¶å™¨
 class Timer
 {
 public:
@@ -103,23 +103,23 @@ public:
 
 protected:
 	TimerHandle _handle;
-	int64_t _exec_time;     // Ö´ĞĞÊ±¼ä
+	int64_t _exec_time;     // æ‰§è¡Œæ—¶é—´
 	Timer * _prev;
 	Timer * _next;
 };
 
-// ÆÕÍ¨Timer(Ö´ĞĞ¾²Ì¬º¯Êı)
+// æ™®é€šTimer(æ‰§è¡Œé™æ€å‡½æ•°)
 class NormalTimer : public Timer
 {
 public:
-	// ·µ»ØÏÂ´Î¶à¾ÃºóÖ´ĞĞ£¬Ğ¡ÓÚ0ÎªÍ£Ö¹¶¨Ê±Æ÷
+	// è¿”å›ä¸‹æ¬¡å¤šä¹…åæ‰§è¡Œï¼Œå°äº0ä¸ºåœæ­¢å®šæ—¶å™¨
 	typedef int32_t(*TimerFunc)();
 
 	NormalTimer(TimerFunc func) : _func(func) {}
 
 	virtual ~NormalTimer() {}
 
-	// Ö´ĞĞ
+	// æ‰§è¡Œ
 	int32_t Invoke() const override
 	{
 		int32_t next = -1;
@@ -134,7 +134,7 @@ private:
 	TimerFunc _func;
 };
 
-// °²È«¶¨Ê±Æ÷¶ÔÏó£¬°ü×°Ò»¸ö¶ÔÏó£¬ÓÃÓÚÊµÏÖ°²È«µÄTimer(ÍâÃæÊÍ·Å¶ÔÏóºó£¬²»ÓÃÊÖ¶¯É¾³ıTimer£¬Ò²ÊÇ°²È«µÄ)
+// å®‰å…¨å®šæ—¶å™¨å¯¹è±¡ï¼ŒåŒ…è£…ä¸€ä¸ªå¯¹è±¡ï¼Œç”¨äºå®ç°å®‰å…¨çš„Timer(å¤–é¢é‡Šæ”¾å¯¹è±¡åï¼Œä¸ç”¨æ‰‹åŠ¨åˆ é™¤Timerï¼Œä¹Ÿæ˜¯å®‰å…¨çš„)
 template<typename T_Obj>
 class SafeTimerObj
 {
@@ -155,7 +155,7 @@ private:
 	T_Obj * _obj_ptr;
 };
 
-// shared_ptrÌØ»¯
+// shared_ptrç‰¹åŒ–
 template<typename T_Obj>
 class SafeTimerObj<std::shared_ptr<T_Obj>>
 {
@@ -176,13 +176,13 @@ private:
 	std::shared_ptr<T_Obj> _obj_ptr;
 };
 
-// ¶¨Ê±Æ÷¶ÔÏó°ïÖú
+// å®šæ—¶å™¨å¯¹è±¡å¸®åŠ©
 template<typename T_Obj>
 struct TimerObjHelper
 {
 };
 
-// Ô­Ê¼Ö¸ÕëÌØ»¯
+// åŸå§‹æŒ‡é’ˆç‰¹åŒ–
 template<typename T_Obj>
 struct TimerObjHelper<T_Obj*>
 {
@@ -194,7 +194,7 @@ struct TimerObjHelper<T_Obj*>
 	}
 };
 
-// shared_ptrÌØ»¯
+// shared_ptrç‰¹åŒ–
 template<typename T_Obj>
 struct TimerObjHelper<std::shared_ptr<T_Obj>>
 {
@@ -206,7 +206,7 @@ struct TimerObjHelper<std::shared_ptr<T_Obj>>
 	}
 };
 
-// shared_ptr<SafeTimerObj>ÌØ»¯
+// shared_ptr<SafeTimerObj>ç‰¹åŒ–
 template<typename T_Obj>
 struct TimerObjHelper<std::shared_ptr<SafeTimerObj<T_Obj>>>
 {
@@ -218,27 +218,27 @@ struct TimerObjHelper<std::shared_ptr<SafeTimerObj<T_Obj>>>
 	}
 };
 
-// SafeTimerObjÌØ»¯£¨²»ÔÊĞíÖ±½ÓÊ¹ÓÃSafeTimerObj*£©
+// SafeTimerObjç‰¹åŒ–ï¼ˆä¸å…è®¸ç›´æ¥ä½¿ç”¨SafeTimerObj*ï¼‰
 template<typename T_Obj>
 struct TimerObjHelper<SafeTimerObj<T_Obj>*>
 {
 };
 
-// ¶ÔÏóTimer(Ö´ĞĞ¶ÔÏó·½·¨)
+// å¯¹è±¡Timer(æ‰§è¡Œå¯¹è±¡æ–¹æ³•)
 template<typename T_ObjPtr>
 class ObjectTimer : public Timer
 {
 public:
 	typedef typename TimerObjHelper<T_ObjPtr>::ObjectType TimerObjType;
 
-	// ·µ»ØÏÂ´Î¶à¾ÃºóÖ´ĞĞ£¬Ğ¡ÓÚ0ÎªÍ£Ö¹¶¨Ê±Æ÷
+	// è¿”å›ä¸‹æ¬¡å¤šä¹…åæ‰§è¡Œï¼Œå°äº0ä¸ºåœæ­¢å®šæ—¶å™¨
 	typedef int32_t(TimerObjType::*TimerFunc)();
 
 	ObjectTimer(const T_ObjPtr &  obj_ptr, TimerFunc func) : _obj_ptr(obj_ptr), _func(func) {}
 
 	virtual ~ObjectTimer() {}
 
-	// Ö´ĞĞ
+	// æ‰§è¡Œ
 	int32_t Invoke() const override
 	{
 		int32_t next = -1;
@@ -258,7 +258,7 @@ private:
 	TimerFunc _func;
 };
 
-// ¶¨Ê±Æ÷Á´±í
+// å®šæ—¶å™¨é“¾è¡¨
 struct TimerList
 {
 	TimerList() : timer_head(nullptr), timer_tail(nullptr) {}
@@ -326,8 +326,8 @@ struct TimerList
 		return timer_head == nullptr;
 	}
 
-	Timer* timer_head;           // ¶¨Ê±Æ÷Á´±íÍ·
-	Timer* timer_tail;           // ¶¨Ê±Æ÷Á´±íÍ·
+	Timer* timer_head;           // å®šæ—¶å™¨é“¾è¡¨å¤´
+	Timer* timer_tail;           // å®šæ—¶å™¨é“¾è¡¨å¤´
 };
 
 #define TVN_BITS 6
@@ -345,24 +345,24 @@ struct tvec_root {
 	struct TimerList vec[TVR_SIZE];
 };
 
-// ¶¨Ê±Æ÷¹ÜÀíÆ÷
+// å®šæ—¶å™¨ç®¡ç†å™¨
 class TimerManager
 {
 public:
-	static const int32_t kMilliSecOneTick = 1;                  // Ò»¸ötick¶àÉÙºÁÃë
+	static const int32_t kMilliSecOneTick = 1;                  // ä¸€ä¸ªtickå¤šå°‘æ¯«ç§’
 
-	TimerManager() : _exec_time(0), _cur_exec_timer(nullptr)
+	TimerManager() : _exec_time(0), _cur_exec_timer(nullptr), _del_cur_timer(false)
 	{
 		_add_timer_cache.reserve(128);
 	}
 
 	~TimerManager() {}
 
-	// ×¢²áÆÕÍ¨¶¨Ê±Æ÷
-	// after_msec: ¶àÉÙºÁÃëºóÖ´ĞĞ
+	// æ³¨å†Œæ™®é€šå®šæ—¶å™¨
+	// after_msec: å¤šå°‘æ¯«ç§’åæ‰§è¡Œ
 	TimerHandle RegistNormalTimer(int32_t after_msec, NormalTimer::TimerFunc func);
 
-	// ×¢²á¶ÔÏó¶¨Ê±Æ÷
+	// æ³¨å†Œå¯¹è±¡å®šæ—¶å™¨
 	template<typename T_ObjPtr>
 	TimerHandle RegistObjectTimer(int32_t after_msec, typename ObjectTimer<T_ObjPtr>::TimerFunc func, const T_ObjPtr & obj_ptr)
 	{
@@ -387,10 +387,10 @@ public:
 		return t->GetHandle();
 	}
 
-	// É¾³ı¶¨Ê±Æ÷
+	// åˆ é™¤å®šæ—¶å™¨
 	void DeleteTimer(TimerHandle timer_handle);
 
-	// Ö´ĞĞ
+	// æ‰§è¡Œ
 	void Execute();
 
 private:
@@ -412,12 +412,13 @@ private:
 	TimerList _tv5[TVN_SIZE];
 	int64_t _exec_time;
 	int64_t _init_time;
-	std::vector<Timer*> _add_timer_cache;                // Ìí¼Ó¶¨Ê±Æ÷»º´æ
+	std::vector<Timer*> _add_timer_cache;                // æ·»åŠ å®šæ—¶å™¨ç¼“å­˜
 	Timer * _cur_exec_timer;
+	bool _del_cur_timer;
 };
 
 
-// °²È«Timer×¢²á£¬ÅÉÉú´ËÀà£¬ÓÃÆä×¢²á¶¨Ê±Æ÷£¬¶ÔÏóÎö¹¹ºó²»ÓÃÊÖ¶¯É¾³ı¶¨Ê±Æ÷
+// å®‰å…¨Timeræ³¨å†Œï¼Œæ´¾ç”Ÿæ­¤ç±»ï¼Œç”¨å…¶æ³¨å†Œå®šæ—¶å™¨ï¼Œå¯¹è±¡ææ„åä¸ç”¨æ‰‹åŠ¨åˆ é™¤å®šæ—¶å™¨
 template<typename T>
 class SafeTimerRegistor
 {
@@ -445,7 +446,7 @@ public:
 		return _timer_mgr;
 	}
 
-	// ×¢²á¶¨Ê±Æ÷(Ö»ÄÜ×¢²á¶ÔÏó×ÔÉíµÄ)
+	// æ³¨å†Œå®šæ—¶å™¨(åªèƒ½æ³¨å†Œå¯¹è±¡è‡ªèº«çš„)
 	TimerHandle RegistTimer(int32_t after_msec, typename ObjectTimer<T*>::TimerFunc func)
 	{
 		if (_timer_mgr == nullptr)

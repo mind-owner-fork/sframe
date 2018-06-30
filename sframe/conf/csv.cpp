@@ -1,11 +1,11 @@
-
+ï»¿
 #include <sstream>
 #include "csv.h"
 #include "../util/StringHelper.h"
 
 using namespace sframe;
 
-// ½âÎö
+// è§£æ
 bool CSV::Parse(const std::string & content, Table & tbl)
 {
 	if (content.empty())
@@ -17,8 +17,8 @@ bool CSV::Parse(const std::string & content, Table & tbl)
 	int32_t cur_column = 0;
 	size_t i = 0;
 	std::string word;
-	bool word_start_by_quote = false;    // µ±Ç°´ÊÓïÊÇ·ñÒÑÒıºÅ¿ªÊ¼
-	bool word_first = true;              // µ±Ç°ÊÇ·ñÊÇÒ»¸ö´ÊµÄµÚÒ»¸ö×Ö·û
+	bool word_start_by_quote = false;    // å½“å‰è¯è¯­æ˜¯å¦å·²å¼•å·å¼€å§‹
+	bool word_first = true;              // å½“å‰æ˜¯å¦æ˜¯ä¸€ä¸ªè¯çš„ç¬¬ä¸€ä¸ªå­—ç¬¦
 
 	while (true)
 	{

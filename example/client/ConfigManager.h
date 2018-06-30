@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef __CONFIG_MANAGER_H__
 #define __CONFIG_MANAGER_H__
 
@@ -12,13 +12,13 @@ class ConfigManager
 {
 public:
 	
-	// ³õÊ¼»¯
+	// åˆå§‹åŒ–
 	static bool InitializeConfig(const std::string & path);
 
-	// ÖØĞÂ¼ÓÔØ
+	// é‡æ–°åŠ è½½
 	static bool ReloadConfig();
 
-	// »ñÈ¡ÅäÖÃ¼¯
+	// è·å–é…ç½®é›†
 	static std::shared_ptr<sframe::ConfigSet> GetConfigSet();
 
 private:

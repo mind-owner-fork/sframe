@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef __CONFIG_LOADER_H__
 #define __CONFIG_LOADER_H__
 
@@ -17,7 +17,7 @@ struct ObjectFiller
 	}
 };
 
-// ÅäÖÃ¼ÓÔØÆ÷
+// é…ç½®åŠ è½½å™¨
 struct ConfigLoader
 {
 	template<typename T_Reader, typename T_Obj, int>
@@ -51,11 +51,11 @@ struct ConfigLoader
 	template<typename T_Reader, typename T_Obj>
 	struct LoaderType
 	{
-		// Æ¥ÅäÆ÷ ¡ª¡ª¡ª¡ª bool·µ»ØÖµÀà³ÉÔ±º¯Êı£¬ĞÎÈç bool T_Obj::FillObject(T_Reader & reader)
+		// åŒ¹é…å™¨ â€”â€”â€”â€” boolè¿”å›å€¼ç±»æˆå‘˜å‡½æ•°ï¼Œå½¢å¦‚ bool T_Obj::FillObject(T_Reader & reader)
 		template<typename U, bool(U::*)(T_Reader &)>
 		struct MethodMatcher_MemeberFuncWithBoolReturn;
 
-		// Æ¥ÅäÆ÷ ¡ª¡ª¡ª¡ª ÎŞ·µ»ØÖµÀà³ÉÔ±º¯Êı£¬ĞÎÈç void T_Obj::FillObject(T_Reader & reader)
+		// åŒ¹é…å™¨ â€”â€”â€”â€” æ— è¿”å›å€¼ç±»æˆå‘˜å‡½æ•°ï¼Œå½¢å¦‚ void T_Obj::FillObject(T_Reader & reader)
 		template<typename U, void(U::*)(T_Reader &)>
 		struct MethodMatcher_MemeberFuncWithNoReturn;
 
@@ -80,7 +80,7 @@ struct ConfigLoader
 };
 
 
-// ÅäÖÃ³õÊ¼»¯Æ÷
+// é…ç½®åˆå§‹åŒ–å™¨
 struct ConfigInitializer
 {
 	template<typename T, int, typename... T_Args>
@@ -114,11 +114,11 @@ struct ConfigInitializer
 	template<typename T, typename... T_Args>
 	struct InitializerType
 	{
-		// Æ¥ÅäÆ÷¡ª¡ª´ø·µ»ØÖµµÄ³õÊ¼»¯·½·¨
+		// åŒ¹é…å™¨â€”â€”å¸¦è¿”å›å€¼çš„åˆå§‹åŒ–æ–¹æ³•
 		template<bool(T::*)(T_Args & ...)>
 		struct MethodMatcher_WithReturnedValue;
 
-		// Æ¥ÅäÆ÷¡ª¡ª´ø·µ»ØÖµµÄ³õÊ¼»¯·½·¨
+		// åŒ¹é…å™¨â€”â€”å¸¦è¿”å›å€¼çš„åˆå§‹åŒ–æ–¹æ³•
 		template<void(T::*)(T_Args & ...)>
 		struct MethodMatcher_WithNoReturnedValue;
 
@@ -131,9 +131,9 @@ struct ConfigInitializer
 		template<typename U>
 		static int32_t match(...);
 
-		// 1 ´ø·µ»ØÖµµÄ³õÊ¼»¯·½·¨
-		// 2 ²»´ø·µ»ØÖµµÃ³õÊ¼»¯·½·¨
-		// 4 Ã»ÓĞ³õÊ¼»¯·½·¨
+		// 1 å¸¦è¿”å›å€¼çš„åˆå§‹åŒ–æ–¹æ³•
+		// 2 ä¸å¸¦è¿”å›å€¼å¾—åˆå§‹åŒ–æ–¹æ³•
+		// 4 æ²¡æœ‰åˆå§‹åŒ–æ–¹æ³•
 		static const int value = sizeof(match<T>(NULL));
 	};
 
@@ -145,7 +145,7 @@ struct ConfigInitializer
 
 };
 
-// ½«ÅäÖÃ¶ÔÏó·ÅÈëÈİÆ÷
+// å°†é…ç½®å¯¹è±¡æ”¾å…¥å®¹å™¨
 struct PutConfigInContainer
 {
 	template<typename T_Map, typename T_Key, typename T_Obj, bool>
@@ -233,7 +233,7 @@ struct PutConfigInContainer
 	template<typename T_Container, typename T_Obj>
 	struct HaveMethod
 	{
-		// Æ¥ÅäÆ÷ ¡ª¡ª¡ª¡ª ĞÎÈç bool T_Obj::FillObject(T_Reader & reader)
+		// åŒ¹é…å™¨ â€”â€”â€”â€” å½¢å¦‚ bool T_Obj::FillObject(T_Reader & reader)
 		template<typename U, bool(U::*)(T_Container &)>
 		struct MethodMatcher;
 

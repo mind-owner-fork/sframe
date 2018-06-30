@@ -13,16 +13,16 @@ class IoUnit;
 
 typedef uint32_t IoEvent;
 
-// IOÏûÏ¢ÀàĞÍ
+// IOæ¶ˆæ¯ç±»å‹
 enum IoMsgType : int32_t
 {
-	kIoMsgType_Connect,      // Á¬½Ó
-	kIoMsgType_SendData,     // ·¢ËÍÊı¾İ
-	kIoMsgType_Close,        // ¹Ø±Õ
-	kIoMsgType_NotifyError,  // ´íÎóÍ¨Öª
+	kIoMsgType_Connect,      // è¿æ¥
+	kIoMsgType_SendData,     // å‘é€æ•°æ®
+	kIoMsgType_Close,        // å…³é—­
+	kIoMsgType_NotifyError,  // é”™è¯¯é€šçŸ¥
 };
 
-// IOÏûÏ¢
+// IOæ¶ˆæ¯
 struct IoMsg
 {
 	IoMsg(IoMsgType t) : msg_type(t) {}
@@ -33,11 +33,11 @@ struct IoMsg
 
 class IoService;
 
-// Ioµ¥Ôª
+// Ioå•å…ƒ
 class IoUnit
 {
 public:
-	// ÉèÖÃÎÄ¼şÃèÊö·ûÎª·Ç×èÈû
+	// è®¾ç½®æ–‡ä»¶æè¿°ç¬¦ä¸ºéé˜»å¡
 	static bool SetNonBlock(int fd)
 	{
 		int old = fcntl(fd, F_GETFL);

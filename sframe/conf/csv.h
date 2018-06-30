@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_CSV_H
 #define SFRAME_CSV_H
 
@@ -10,7 +10,7 @@ class CSV
 {
 public:
 
-	// ½âÎö
+	// è§£æ
 	static bool Parse(const std::string & content, Table & tbl);
 
 };

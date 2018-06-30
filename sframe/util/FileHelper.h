@@ -1,9 +1,10 @@
-
+ï»¿
 #ifndef __FILE_HELPER_H__
 #define __FILE_HELPER_H__
 
 #include <vector>
 #include <string>
+#include "Error.h"
 
 namespace sframe {
 
@@ -11,31 +12,31 @@ class FileHelper
 {
 public:
 
-	// ¶ÁÈ¡ÎÄ¼şËùÓĞÄÚÈİ
+	// è¯»å–æ–‡ä»¶æ‰€æœ‰å†…å®¹
 	static bool ReadFile(const std::string & full_name, std::string & content);
 
-	// Ğ´ÈëÎÄ¼ş
+	// å†™å…¥æ–‡ä»¶
 	static size_t WriteFile(const std::string & full_name, std::string & content);
 
-	// ÔÚÈ«Â·¾¢ÖĞ»ñÈ¡ÎÄ¼şÃû
+	// åœ¨å…¨è·¯åŠ²ä¸­è·å–æ–‡ä»¶å
 	static std::string GetFileName(const char * fullname);
 
-	// ÔÚÈ«Â·¾¢ÖĞ»ñÈ¡ÎÄ¼şÃû
+	// åœ¨å…¨è·¯åŠ²ä¸­è·å–æ–‡ä»¶å
 	static std::string GetFileName(const std::string & fullname)
 	{
 		return GetFileName(fullname.c_str());
 	}
 
-	// È¥³ıÎÄ¼şÀ©Õ¹Ãû
+	// å»é™¤æ–‡ä»¶æ‰©å±•å
 	static std::string RemoveExtension(const std::string & name);
 
-	// Ä¿Â¼ÊÇ·ñ´æÔÚ
+	// ç›®å½•æ˜¯å¦å­˜åœ¨
 	static bool DirectoryExisted(const std::string & path);
 
-	// ´´½¨Ä¿Â¼
+	// åˆ›å»ºç›®å½•
 	static bool MakeDirectory(const std::string & path);
 
-	// µİ¹é´´½¨
+	// é€’å½’åˆ›å»º
 	static bool MakeDirectoryRecursive(const std::string & path);
 
 	enum ScanType
@@ -45,15 +46,23 @@ public:
 		kScanType_OnlyNotDirectory,
 	};
 
-	// É¨ÃèÄ¿Â¼
-	// dir_path   :   Ä¿Â¼Â·¾¶£¬²»ÄÜ°üº¬Í¨Åä·û
-	// match_name :   Ãû×ÖÆ¥Åä£¬Ö§³ÖÍ¨Åä·û£¬±ÈÈçÒªÉ¨Ãè /data Ä¿Â¼ÏÂ£¬ËùÓĞ·ûºÏ*.cppµÄÃû×ÖµÄÄÚÈİ£¬µ÷ÓÃScanDirectory("/data", "*.cpp")
+	// æ‰«æç›®å½•
+	// dir_path   :   ç›®å½•è·¯å¾„ï¼Œä¸èƒ½åŒ…å«é€šé…ç¬¦
+	// match_name :   åå­—åŒ¹é…ï¼Œæ”¯æŒé€šé…ç¬¦ï¼Œæ¯”å¦‚è¦æ‰«æ /data ç›®å½•ä¸‹ï¼Œæ‰€æœ‰ç¬¦åˆ*.cppçš„åå­—çš„å†…å®¹ï¼Œè°ƒç”¨ScanDirectory("/data", "*.cpp")
 	static std::vector<std::string> ScanDirectory(const std::string & dir_path, const std::string & match_name = "", ScanType scan_type = kScanType_All);
 
-	// Õ¹¿ªÍ¨Åä·û(* ?)
-	// path: Â·¾¶£¬×îºóÊÇ·ñÒÔ/½áÎ²£¬±íÊ¾ÎÄ¼ş£¬·ñÔòÎªÄ¿Â¼
-	// parent_dir: ËùÔÚÄ¿Â¼
+	// å±•å¼€é€šé…ç¬¦(* ?)
+	// path: è·¯å¾„ï¼Œæœ€åæ˜¯å¦ä»¥/ç»“å°¾ï¼Œè¡¨ç¤ºæ–‡ä»¶ï¼Œå¦åˆ™ä¸ºç›®å½•
+	// parent_dir: æ‰€åœ¨ç›®å½•
 	static std::vector<std::string> ExpandWildcard(const std::string & path, const std::string & parent_dir = "");
+
+
+#ifdef __GNUC__
+
+	// å†™PIDæ–‡ä»¶
+	static Error WritePidFile(const std::string & file_name, bool wr_lock);
+
+#endif
 };
 
 }

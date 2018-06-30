@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_TABLE_LOADER_H
 #define SFRAME_TABLE_LOADER_H
 
@@ -8,16 +8,16 @@
 
 namespace sframe {
 
-// ±í¸ñ¶ÁÈ¡Æ÷
+// è¡¨æ ¼è¯»å–å™¨
 template<typename T_Parser>
 class TableLoader
 {
 	enum 
 	{
-		kHeaderRow_Declare,         // ÉêÃ÷
-		kHeaderRow_ColumnName,      // ÁĞÃû
-		kHeaderRow_ColumnExplain,   // ×¢ÊÍ
-		kHeaderRow_ColumnType,      // ÀàĞÍ
+		kHeaderRow_Declare,         // ç”³æ˜
+		kHeaderRow_ColumnName,      // åˆ—å
+		kHeaderRow_ColumnExplain,   // æ³¨é‡Š
+		kHeaderRow_ColumnType,      // ç±»å‹
 
 		kHeaderRow_Count
 	};
@@ -46,14 +46,14 @@ public:
 			return false;
 		}
 
-		// ÉèÖÃÁĞÃû
+		// è®¾ç½®åˆ—å
 		int32_t column_count = tbl.GetColumnCount();
 		for (int i = 0; i < column_count; i++)
 		{
 			tbl.GetColumn(i).SetName(tbl[kHeaderRow_ColumnName][i]);
 		}
 
-		// É¾³ıÍ·²¿
+		// åˆ é™¤å¤´éƒ¨
 		int32_t surplus_header = kHeaderRow_Count;
 		while (surplus_header > 0)
 		{

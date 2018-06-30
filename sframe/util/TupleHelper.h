@@ -1,4 +1,4 @@
-
+﻿
 #ifndef SFRAME_TUPLE_HELPER_H
 #define SFRAME_TUPLE_HELPER_H
 
@@ -30,7 +30,7 @@ struct UnfoldHelper<0>
 	}
 };
 
-// չ��std::tuple
+// 展开std::tuple
 template<typename Obj, typename Tuple>
 inline auto UnfoldTuple(Obj * obj, Tuple & t)
 	-> decltype(UnfoldHelper<std::tuple_size<Tuple>::value>::Unfold(obj, t))

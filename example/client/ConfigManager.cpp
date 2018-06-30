@@ -1,4 +1,4 @@
-
+ï»¿
 #include <sstream>
 #include "ConfigManager.h"
 #include "conf/csv.h"
@@ -20,7 +20,7 @@ std::shared_ptr<ConfigSet> ConfigManager::g_cur_conf_set;
 std::string ConfigManager::g_config_path;
 sframe::Lock ConfigManager::g_conf_set_lock;
 
-// ³õÊ¼»¯
+// åˆå§‹åŒ–
 bool ConfigManager::InitializeConfig(const std::string & path)
 {
 	g_config_path = path;
@@ -32,7 +32,7 @@ bool ConfigManager::InitializeConfig(const std::string & path)
 	return ReloadConfig();
 }
 
-// ÖØĞÂ¼ÓÔØ
+// é‡æ–°åŠ è½½
 bool ConfigManager::ReloadConfig()
 {
 	if (g_config_path.empty())
@@ -66,7 +66,7 @@ bool ConfigManager::ReloadConfig()
 	return true;
 }
 
-// »ñÈ¡ÅäÖÃ¼¯
+// è·å–é…ç½®é›†
 std::shared_ptr<ConfigSet> ConfigManager::GetConfigSet()
 {
 	AUTO_LOCK(g_conf_set_lock);

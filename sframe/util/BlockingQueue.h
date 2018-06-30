@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_BLOCKING_QUEUE_H
 #define SFRAME_BLOCKING_QUEUE_H
 
@@ -7,7 +7,7 @@
 
 namespace sframe {
 
-// ×èÈû¶ÓÁÐ
+// é˜»å¡žé˜Ÿåˆ—
 template<typename T>
 class BlockingQueue
 {
@@ -31,7 +31,7 @@ public:
 		}
 
 		_ring_queue.Push(val);
-		// »½ÐÑÒ»¸öÔÚµÈ´ýµÄÏß³Ì
+		// å”¤é†’ä¸€ä¸ªåœ¨ç­‰å¾…çš„çº¿ç¨‹
 		_cond.WakeUpOne();
 	}
 

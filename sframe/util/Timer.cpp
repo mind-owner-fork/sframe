@@ -1,4 +1,4 @@
-
+ï»¿
 #include <algorithm>
 #include "Timer.h"
 #include "TimeHelper.h"
@@ -17,8 +17,8 @@ TimerList::~TimerList()
 	}
 }
 
-// ×¢²áÆÕÍ¨¶¨Ê±Æ÷
-// after_msec: ¶àÉÙºÁÃëºóÖ´ĞĞ
+// æ³¨å†Œæ™®é€šå®šæ—¶å™¨
+// after_msec: å¤šå°‘æ¯«ç§’åæ‰§è¡Œ
 TimerHandle TimerManager::RegistNormalTimer(int32_t after_msec, NormalTimer::TimerFunc func)
 {
 	if (!func || after_msec < 0)
@@ -33,8 +33,6 @@ TimerHandle TimerManager::RegistNormalTimer(int32_t after_msec, NormalTimer::Tim
 		assert(_exec_time <= 0);
 		_init_time = now;
 		_exec_time = now;
-
-		printf("init %lld\n", now);
 	}
 
 	NormalTimer * t = new  NormalTimer(func);
@@ -44,7 +42,7 @@ TimerHandle TimerManager::RegistNormalTimer(int32_t after_msec, NormalTimer::Tim
 	return t->GetHandle();
 }
 
-// É¾³ı¶¨Ê±Æ÷
+// åˆ é™¤å®šæ—¶å™¨
 void TimerManager::DeleteTimer(TimerHandle timer_handle)
 {
 	if (!Timer::IsTimerAlive(timer_handle))
@@ -59,9 +57,10 @@ void TimerManager::DeleteTimer(TimerHandle timer_handle)
 		return;
 	}
 
-	// ²»ÄÜÉ¾³ıµ±Ç°ÕıÔÚÖ´ĞĞµÄtimer
+	// ä¸èƒ½åˆ é™¤å½“å‰æ­£åœ¨æ‰§è¡Œçš„timer
 	if (timer == _cur_exec_timer)
 	{
+		_del_cur_timer = true;
 		return;
 	}
 
@@ -87,7 +86,7 @@ void TimerManager::DeleteTimer(TimerHandle timer_handle)
 		auto it = std::find(_add_timer_cache.begin(), _add_timer_cache.end(), timer);
 		if (it == _add_timer_cache.end())
 		{
-			// Ã»ÓĞÔÚÖ´ĞĞ×éÖĞ£¬¿Ï¶¨ÔÚcacheÖĞ£¬Ã»ÓĞÕÒµ½ËµÃ÷Âß¼­ÓĞ´íÎó
+			// æ²¡æœ‰åœ¨æ‰§è¡Œç»„ä¸­ï¼Œè‚¯å®šåœ¨cacheä¸­ï¼Œæ²¡æœ‰æ‰¾åˆ°è¯´æ˜é€»è¾‘æœ‰é”™è¯¯
 			assert(false);
 			return;
 		}
@@ -97,7 +96,7 @@ void TimerManager::DeleteTimer(TimerHandle timer_handle)
 	}
 }
 
-// Ö´ĞĞ
+// æ‰§è¡Œ
 void TimerManager::Execute()
 {
 	if (_init_time <= 0 || _exec_time <= 0)
@@ -127,7 +126,7 @@ void TimerManager::Execute()
 		_cur_exec_timer = cur_list.timer_head;
 		while (_cur_exec_timer)
 		{
-			// Ö´ĞĞ
+			// æ‰§è¡Œ
 			int64_t after = -1;
 			try
 			{
@@ -144,18 +143,19 @@ void TimerManager::Execute()
 				after = -1;
 			}
 
-			// »ñÈ¡ÏÂÒ»½Úµã£¬²¢É¾³ıµ±Ç°½Úµã
+			// è·å–ä¸‹ä¸€èŠ‚ç‚¹ï¼Œå¹¶åˆ é™¤å½“å‰èŠ‚ç‚¹
 			Timer * next_timer = _cur_exec_timer->GetNext();
 			cur_list.DeleteTimer(_cur_exec_timer);
 
-			if (after >= 0)
+			if (_del_cur_timer || after < 0)
 			{
-				_cur_exec_timer->SetExecTime(now + after);
-				_add_timer_cache.push_back(_cur_exec_timer);
+				_del_cur_timer = false;
+				delete _cur_exec_timer;
 			}
 			else
 			{
-				delete _cur_exec_timer;
+				_cur_exec_timer->SetExecTime(now + after);
+				_add_timer_cache.push_back(_cur_exec_timer);
 			}
 
 			_cur_exec_timer = next_timer;
@@ -214,7 +214,6 @@ void TimerManager::AddTimer(Timer * t)
 		return;
 	}
 
-	int64_t after_time = timer_time - _exec_time;
 	int32_t after_tick = (int32_t)MilliSecToTick(timer_time - _exec_time, true);
 	timer_time = _exec_time + after_tick * kMilliSecOneTick;
 	t->SetExecTime(timer_time);

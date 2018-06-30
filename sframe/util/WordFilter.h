@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_WORD_FILTER_H
 #define SFRAME_WORD_FILTER_H
 
@@ -9,7 +9,7 @@
 
 namespace sframe {
 
-// µ¥´Ê²éÕÒÊ÷½Úµã
+// å•è¯æŸ¥æ‰¾æ ‘èŠ‚ç‚¹
 class TrieNode
 {
 public:
@@ -35,7 +35,7 @@ private:
 	bool _is_end_node;
 };
 
-// µ¥´Ê²éÕÒÊ÷
+// å•è¯æŸ¥æ‰¾æ ‘
 class Trie
 {
 public:
@@ -59,7 +59,7 @@ private:
 };
 
 
-// Ãô¸Ğ´Ê¹ıÂË
+// æ•æ„Ÿè¯è¿‡æ»¤
 class WordFilter
 {
 public:

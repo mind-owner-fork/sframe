@@ -1,9 +1,9 @@
-
+ï»¿
 #include "ShmChunk.h"
 
 #ifndef __GNUC__
-
-bool ShmChunk::Open(bool & is_new)
+  
+bool ShmChunk::Open(bool & is_new) 
 {
 	is_new = false;
 	std::string shm_name = std::to_string(_shm_key);
@@ -43,7 +43,7 @@ void ShmChunk::Close()
 bool ShmChunk::Open(bool & is_new)
 {
 	is_new = true;
-	//Èç¹ûkey¹²ÏíÄÚ´æÒÑÓĞ ·µ»Ø-1 ·ñÔòÔò´´½¨
+	//å¦‚æœkeyå…±äº«å†…å­˜å·²æœ‰ è¿”å›-1 å¦åˆ™åˆ™åˆ›å»º
 	int shm_id = shmget(_shm_key, _shm_size, IPC_CREAT | IPC_EXCL | 0666);
 	if (shm_id < 0)
 	{
@@ -55,7 +55,7 @@ bool ShmChunk::Open(bool & is_new)
 		is_new = false;
 	}
 
-	//ÊÇÒÑÓĞµÄ Ôò»ñÈ¡ÒÔÇ°µÄShmId
+	//æ˜¯å·²æœ‰çš„ åˆ™è·å–ä»¥å‰çš„ShmId
 	if (shm_id < 0)
 	{
 		shm_id = shmget(_shm_key, _shm_size, 0666);

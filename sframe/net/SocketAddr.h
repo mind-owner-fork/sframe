@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_SOCKET_ADDR_H
 #define SFRAME_SOCKET_ADDR_H
 
@@ -6,7 +6,7 @@
 
 namespace sframe {
 
-// SocketµØÖ··â×°
+// Socketåœ°å€å°è£…
 class SocketAddr
 {
 public:
@@ -34,7 +34,7 @@ private:
 };
 
 
-// µØÖ·×ª»»ÎªÎÄ±¾
+// åœ°å€è½¬æ¢ä¸ºæ–‡æœ¬
 class SocketAddrText
 {
 public:

@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef __HTTP_SESSION_H__
 #define __HTTP_SESSION_H__
 
@@ -17,12 +17,12 @@ public:
 
 	~HttpSession() {}
 
-	// ½ÓÊÕµ½Êı¾İ
-	// ·µ»ØÊ£Óà¶àÉÙÊı¾İ
+	// æ¥æ”¶åˆ°æ•°æ®
+	// è¿”å›å‰©ä½™å¤šå°‘æ•°æ®
 	int32_t OnReceived(char * data, int32_t len) override;
 
-	// Socket¹Ø±Õ
-	// by_self: true±íÊ¾Ö÷¶¯ÇëÇóµÄ¹Ø±Õ²Ù×÷
+	// Socketå…³é—­
+	// by_self: trueè¡¨ç¤ºä¸»åŠ¨è¯·æ±‚çš„å…³é—­æ“ä½œ
 	void OnClosed(bool by_self, sframe::Error err) override;
 
 	void StartClose();

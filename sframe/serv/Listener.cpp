@@ -1,4 +1,4 @@
-
+﻿
 #include "Listener.h"
 #include "ServiceDispatcher.h"
 #include "../util/Log.h"
@@ -31,7 +31,7 @@ void ServiceTcpConnHandler::HandleTcpConn(const std::shared_ptr<TcpSocket> & soc
 	assert(hand_sid >= 0);
 
 	std::shared_ptr<NewConnectionMessage> new_conn_msg = std::make_shared<NewConnectionMessage>(sock, listen_addr);
-	GetServiceDispatcher().SendMsg(hand_sid, new_conn_msg);
+	sframe::ServiceDispatcher::Instance().SendMsg(hand_sid, new_conn_msg);
 }
 
 
@@ -77,7 +77,7 @@ void Listener::Stop()
 	}
 }
 
-// ����֪ͨ
+// 连接通知
 void Listener::OnAccept(std::shared_ptr<TcpSocket> socket, Error err)
 {
 	if (err)
@@ -95,7 +95,7 @@ void Listener::OnAccept(std::shared_ptr<TcpSocket> socket, Error err)
 	_conn_handler->HandleTcpConn(socket, _addr);
 }
 
-// ֹͣ
+// 停止
 void Listener::OnClosed(Error err)
 {
 	if (err)

@@ -10,13 +10,13 @@
 
 namespace sframe {
 
-// LinuxÏÂµÄIo·şÎñ(²ÉÓÃEPOLLÊµÏÖ)
+// Linuxä¸‹çš„IoæœåŠ¡(é‡‡ç”¨EPOLLå®ç°)
 class IoService_Linux : public IoService
 {
 public:
-	// epollµÈ´ı×î´óÊÂ¼şÊıÁ¿
+	// epollç­‰å¾…æœ€å¤§äº‹ä»¶æ•°é‡
 	static const int kMaxEpollEventsNumber = 1024;
-	// IOÏûÏ¢»º³åÇø³¤¶È
+	// IOæ¶ˆæ¯ç¼“å†²åŒºé•¿åº¦
 	static const int kMaxIoMsgBufferSize = 65536;
 
 public:
@@ -30,23 +30,23 @@ public:
 
 	void Close() override;
 
-	// Ìí¼Ó¼àÌıÊÂ¼ş
+	// æ·»åŠ ç›‘å¬äº‹ä»¶
 	bool AddIoEvent(const IoUnit & iounit, const IoEvent ioevt);
 
-	// ĞŞ¸Ä¼àÌıÊÂ¼ş
+	// ä¿®æ”¹ç›‘å¬äº‹ä»¶
 	bool ModifyIoEvent(const IoUnit & iounit, const IoEvent ioevt);
 
-	// É¾³ı¼àÌıÊÂ¼ş
+	// åˆ é™¤ç›‘å¬äº‹ä»¶
 	bool DeleteIoEvent(const IoUnit & iounit, const IoEvent ioevt);
 
-	// Í¶µİÏûÏ¢
+	// æŠ•é€’æ¶ˆæ¯
 	void PostIoMsg(const IoMsg & io_msg);
 
 private:
 	int _epoll_fd;
-	int _msg_evt_fd;               // ÓÃÓÚÊµÏÖIOÏûÏ¢µÄ·¢ËÍÓë´¦Àí
-	std::vector<IoMsg*> _msgs;     // IOÏûÏ¢ÁĞ±í
-	sframe::Lock _msgs_lock;  // ÏûÏ¢ÁĞ±íËø
+	int _msg_evt_fd;               // ç”¨äºå®ç°IOæ¶ˆæ¯çš„å‘é€ä¸å¤„ç†
+	std::vector<IoMsg*> _msgs;     // IOæ¶ˆæ¯åˆ—è¡¨
+	sframe::Lock _msgs_lock;  // æ¶ˆæ¯åˆ—è¡¨é”
 };
 
 }

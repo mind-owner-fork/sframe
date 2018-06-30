@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef __GATE_SERVICE_H__
 #define __GATE_SERVICE_H__
 
@@ -15,16 +15,16 @@ public:
 	GateService() : _new_session_id(1), _last_choosed_work_service(-1) {}
 	virtual ~GateService(){}
 
-	// ³õÊ¼»¯£¨´´½¨·şÎñ³É¹¦ºóµ÷ÓÃ£¬´ËÊ±»¹Î´¿ªÊ¼ÔËĞĞ£©
+	// åˆå§‹åŒ–ï¼ˆåˆ›å»ºæœåŠ¡æˆåŠŸåè°ƒç”¨ï¼Œæ­¤æ—¶è¿˜æœªå¼€å§‹è¿è¡Œï¼‰
 	void Init() override;
 
-	// ĞÂÁ¬½Óµ½À´
+	// æ–°è¿æ¥åˆ°æ¥
 	void OnNewConnection(const sframe::ListenAddress & listen_addr_info, const std::shared_ptr<sframe::TcpSocket> & sock) override;
 
-	// ´¦ÀíÏú»Ù
+	// å¤„ç†é”€æ¯
 	void OnDestroy() override;
 
-	// ÊÇ·ñÏú»ÙÍê³É
+	// æ˜¯å¦é”€æ¯å®Œæˆ
 	bool IsDestroyCompleted() const override
 	{
 		return _sessions.empty();

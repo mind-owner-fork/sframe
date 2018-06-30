@@ -1,4 +1,4 @@
-
+ï»¿
 #include "memory.h"
 #include "md5.h"
 
@@ -21,7 +21,7 @@ MD5::MD5(const char * input, uint32_t len)
     Digest((const unsigned char *)input, len);
 }
 
-// ¼ÆËãMD5ÕªÒª
+// è®¡ç®—MD5æ‘˜è¦
 void MD5::Digest(const unsigned char * str, uint32_t len)
 {
     _result[0] = A;
@@ -31,19 +31,19 @@ void MD5::Digest(const unsigned char * str, uint32_t len)
 
     uint32_t group_num = len / 64;
 
-    // ÒÔÃ¿×é64×Ö½Ú£¨512Î»£©·Ö×é´¦Àí
+    // ä»¥æ¯ç»„64å­—èŠ‚ï¼ˆ512ä½ï¼‰åˆ†ç»„å¤„ç†
     for (uint32_t i = 0; i < group_num; i++)
     {
         TransGroup(str + i * 64);
     }
 
-    // »¹ÓĞ¶àÉÙÊı¾İÃ»ÓĞ´¦Àí
+    // è¿˜æœ‰å¤šå°‘æ•°æ®æ²¡æœ‰å¤„ç†
     uint32_t surplus = len % 64;
     unsigned char buf[64];
 
     if (surplus < 56)
     {
-        // ½«Ê£ÓàµÄÊı¾İ¿½µ½bufÖĞ
+        // å°†å‰©ä½™çš„æ•°æ®æ‹·åˆ°bufä¸­
         for (uint32_t i = 0; i < surplus; i++)
         {
             buf[i] = str[len - surplus + i];
@@ -55,51 +55,51 @@ void MD5::Digest(const unsigned char * str, uint32_t len)
             buf[surplus + i] = 0x00;
         }
 
-        // ¼ÓÈëÊı¾İ³¤¶È
+        // åŠ å…¥æ•°æ®é•¿åº¦
         uint64_t in_len = (uint64_t)(len << 3);
         for (int i = 0; i < 8; i++){
             buf[56 + i] = (char)(in_len & 0xFFL);
             in_len = in_len >> 8;
         }
 
-        // ´¦Àí×é
+        // å¤„ç†ç»„
         TransGroup(buf);
     }
     else
     {
-        // ¿½±´Êı¾İ
+        // æ‹·è´æ•°æ®
         for (uint32_t i = 0; i < surplus; i++)
         {
             buf[i] = str[len - surplus + i];
         }
-        // Ìî³ä
+        // å¡«å……
         buf[surplus] = 0x80;
         for (int i = surplus + 1; i < 64; i++)
         {
             buf[i] = 0x00;
         }
-        // ´¦Àí·Ö×é
+        // å¤„ç†åˆ†ç»„
         TransGroup(buf);
 
-        // ÔÙ´ÎÌî³ä56¸ö0
+        // å†æ¬¡å¡«å……56ä¸ª0
         for (int i = 0; i < 56; i++)
         {
             buf[i] = 0x00;
         }
 
-        // ÌîÈë³¤¶È
+        // å¡«å…¥é•¿åº¦
         uint64_t in_len = (uint64_t)(len << 3);
         for (int i = 0; i < 8; i++){
             buf[56 + i] = (char)(in_len & 0xFFL);
             in_len = in_len >> 8;
         }
 
-        // ´¦Àí×é
+        // å¤„ç†ç»„
         TransGroup(buf);
     }
 }
 
-// »ñÈ¡½á¹û
+// è·å–ç»“æœ
 const char * MD5::GetResult()
 {
     if (_result_str[0] == '\0')
@@ -119,7 +119,7 @@ const char * MD5::GetResult()
 
 
 
-// ´¦ÀíÒ»×éÊı¾İ(Ä¬ÈÏ³¤¶ÈÎª64×Ö½Ú)
+// å¤„ç†ä¸€ç»„æ•°æ®(é»˜è®¤é•¿åº¦ä¸º64å­—èŠ‚)
 void MD5::TransGroup(const unsigned char * groups)
 {
     uint32_t a = _result[0], b = _result[1], c = _result[2], d = _result[3];
@@ -151,7 +151,7 @@ void MD5::TransGroup(const unsigned char * groups)
     c = FF(c, d, a, b, groupdata[14], S13, 0xa679438eL); /* 15 */
     b = FF(b, c, d, a, groupdata[15], S14, 0x49b40821L); /* 16 */
 
-    /*µÚ¶şÂÖ*/
+    /*ç¬¬äºŒè½®*/
     a = GG(a, b, c, d, groupdata[1], S21, 0xf61e2562L); /* 17 */
     d = GG(d, a, b, c, groupdata[6], S22, 0xc040b340L); /* 18 */
     c = GG(c, d, a, b, groupdata[11], S23, 0x265e5a51L); /* 19 */
@@ -169,7 +169,7 @@ void MD5::TransGroup(const unsigned char * groups)
     c = GG(c, d, a, b, groupdata[7], S23, 0x676f02d9L); /* 31 */
     b = GG(b, c, d, a, groupdata[12], S24, 0x8d2a4c8aL); /* 32 */
 
-    /*µÚÈıÂÖ*/
+    /*ç¬¬ä¸‰è½®*/
     a = HH(a, b, c, d, groupdata[5], S31, 0xfffa3942L); /* 33 */
     d = HH(d, a, b, c, groupdata[8], S32, 0x8771f681L); /* 34 */
     c = HH(c, d, a, b, groupdata[11], S33, 0x6d9d6122L); /* 35 */
@@ -187,7 +187,7 @@ void MD5::TransGroup(const unsigned char * groups)
     c = HH(c, d, a, b, groupdata[15], S33, 0x1fa27cf8L); /* 47 */
     b = HH(b, c, d, a, groupdata[2], S34, 0xc4ac5665L); /* 48 */
 
-    /*µÚËÄÂÖ*/
+    /*ç¬¬å››è½®*/
     a = II(a, b, c, d, groupdata[0], S41, 0xf4292244L); /* 49 */
     d = II(d, a, b, c, groupdata[7], S42, 0x432aff97L); /* 50 */
     c = II(c, d, a, b, groupdata[14], S43, 0xab9423a7L); /* 51 */
@@ -205,7 +205,7 @@ void MD5::TransGroup(const unsigned char * groups)
     c = II(c, d, a, b, groupdata[2], S43, 0x2ad7d2bbL); /* 63 */
     b = II(b, c, d, a, groupdata[9], S44, 0xeb86d391L); /* 64 */
 
-    /*¼ÓÈëµ½Ö®Ç°¼ÆËãµÄ½á¹ûµ±ÖĞ*/
+    /*åŠ å…¥åˆ°ä¹‹å‰è®¡ç®—çš„ç»“æœå½“ä¸­*/
     _result[0] += a;
     _result[1] += b;
     _result[2] += c;

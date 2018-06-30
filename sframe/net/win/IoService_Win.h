@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_IO_SERVICE_WIN_H
 #define SFRAME_IO_SERVICE_WIN_H
 
@@ -8,7 +8,7 @@
 
 namespace sframe {
 
-// windowsµÄIo·şÎñ(Íê³É¶Ë¿ÚÊµÏÖ)
+// windowsçš„IoæœåŠ¡(å®Œæˆç«¯å£å®ç°)
 class IoService_Win : public IoService
 {
 public:
@@ -22,10 +22,10 @@ public:
 
 	void Close() override;
 
-	// ×¢²áSocket
+	// æ³¨å†ŒSocket
 	bool RegistSocket(const IoUnit & io_unit);
 
-	// Í¶µİÏûÏ¢
+	// æŠ•é€’æ¶ˆæ¯
 	void PostIoMsg(const IoMsg & io_msg);
 
 private:

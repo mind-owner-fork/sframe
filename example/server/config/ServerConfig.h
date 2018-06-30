@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef PUBDEF_SERVER_CONFIG_H
 #define PUBDEF_SERVER_CONFIG_H
 
@@ -16,15 +16,15 @@ struct NetAddrInfo
 	bool ParseFormString(const std::string & data);
 
 	std::string ip;           // IP
-	uint16_t port;            // ¶Ë¿Ú
+	uint16_t port;            // ç«¯å£
 };
 
 struct ListenAddrInfo
 {
 	bool ParseFormString(const std::string & data);
 
-	std::string desc;         // ÃèÊö£¬±ãÓÚÊ¶±ğ
-	NetAddrInfo addr;         // µØÖ·
+	std::string desc;         // æè¿°ï¼Œä¾¿äºè¯†åˆ«
+	NetAddrInfo addr;         // åœ°å€
 };
 
 struct ServiceInfo
@@ -32,9 +32,9 @@ struct ServiceInfo
 	bool ParseFormString(const std::string & data);
 
 	int32_t sid;
-	std::string service_type_name;   // ·şÎñÀàĞÍÃû³Æ
-	bool is_local_service;           // true Îª±¾µØ·şÎñ£¬falseÎªÔ¶³Ì·şÎñ
-	NetAddrInfo remote_addr;         // Ô¶³ÌµØÖ·£¬½öµ±local_serviceÎªfalseÊÇÓĞĞ§
+	std::string service_type_name;   // æœåŠ¡ç±»å‹åç§°
+	bool is_local_service;           // true ä¸ºæœ¬åœ°æœåŠ¡ï¼Œfalseä¸ºè¿œç¨‹æœåŠ¡
+	NetAddrInfo remote_addr;         // è¿œç¨‹åœ°å€ï¼Œä»…å½“local_serviceä¸ºfalseæ˜¯æœ‰æ•ˆ
 };
 
 struct ServerConfig : public sframe::singleton<ServerConfig>
@@ -45,14 +45,14 @@ struct ServerConfig : public sframe::singleton<ServerConfig>
 
 	bool HaveLocalService(const std::string & serv_type_name);
 
-	std::string server_name;                  // ·şÎñÆ÷Ãû³Æ
-	std::string res_path;                     // ×ÊÔ´Ä¿Â¼
-	int32_t thread_num;                       // Ïß³ÌÊıÁ¿
-	std::shared_ptr<NetAddrInfo> listen_service;                                 // Ô¶³Ì·şÎñ¼àÌıµØÖ·
-	std::shared_ptr<NetAddrInfo> listen_admin;                                 // ¹ÜÀíµØÖ·
-	std::unordered_map<int32_t, std::shared_ptr<ServiceInfo>> services;          // ·şÎñĞÅÏ¢£¨sid -> ·şÎñĞÅÏ¢£©
-	std::unordered_map<std::string, std::unordered_map<int32_t, std::shared_ptr<ServiceInfo>>> type_to_services;  // ÀàĞÍ->¸ÃÀàĞÍËùÓĞ·şÎñĞÅÏ¢
-	std::unordered_map<std::string, std::vector<ListenAddrInfo>> listen_custom;  // ×Ô¶¨Òå¼àÌı
+	std::string server_name;                  // æœåŠ¡å™¨åç§°
+	std::string res_path;                     // èµ„æºç›®å½•
+	int32_t thread_num;                       // çº¿ç¨‹æ•°é‡
+	std::shared_ptr<NetAddrInfo> listen_service;                                 // è¿œç¨‹æœåŠ¡ç›‘å¬åœ°å€
+	std::shared_ptr<NetAddrInfo> listen_admin;                                 // ç®¡ç†åœ°å€
+	std::unordered_map<int32_t, std::shared_ptr<ServiceInfo>> services;          // æœåŠ¡ä¿¡æ¯ï¼ˆsid -> æœåŠ¡ä¿¡æ¯ï¼‰
+	std::unordered_map<std::string, std::unordered_map<int32_t, std::shared_ptr<ServiceInfo>>> type_to_services;  // ç±»å‹->è¯¥ç±»å‹æ‰€æœ‰æœåŠ¡ä¿¡æ¯
+	std::unordered_map<std::string, std::vector<ListenAddrInfo>> listen_custom;  // è‡ªå®šä¹‰ç›‘å¬
 };
 
 

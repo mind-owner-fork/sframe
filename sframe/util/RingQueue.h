@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_RING_QUEUE_H
 #define SFRAME_RING_QUEUE_H
 
@@ -9,7 +9,7 @@
 
 namespace sframe {
 
-// ¿½±´Êı¾İ
+// æ‹·è´æ•°æ®
 template<typename T, bool>
 struct CopyDataHelper
 {
@@ -31,7 +31,7 @@ struct CopyDataHelper<T, false>
 	}
 };
 
-// »·ĞÎ¶ÓÁĞ
+// ç¯å½¢é˜Ÿåˆ—
 template<typename T>
 class RingQueue
 {
@@ -68,7 +68,7 @@ public:
 		return (*this);
 	}
 
-	// Ñ¹Èë
+	// å‹å…¥
 	void Push(const T & val)
 	{
 		if (_len >= _capacity)
@@ -86,7 +86,7 @@ public:
 		}
 	}
 
-	// µ¯³ö
+	// å¼¹å‡º
 	bool Pop(T * val = nullptr)
 	{
 		if (_len <= 0)

@@ -1,4 +1,4 @@
-
+ï»¿
 #include <string.h>
 #include <algorithm>
 #include <assert.h>
@@ -9,13 +9,19 @@
 #include <cxxabi.h>
 #endif
 
-// ·Ö¸î×Ö·û´®
+// åˆ†å‰²å­—ç¬¦ä¸²
 std::vector<std::string> sframe::SplitString(const std::string & str, const std::string & sep)
 {
 	std::vector<std::string> result;
 
-	if (str.size() == 0)
+	if (str.empty())
 	{
+		return result;
+	}
+
+	if (sep.empty())
+	{
+		result.push_back(str);
 		return result;
 	}
 
@@ -45,7 +51,7 @@ std::vector<std::string> sframe::SplitString(const std::string & str, const std:
 	return result;
 }
 
-// ²éÕÒ×Ö·ûÔÚ×Ö·û´®ÖĞ×î´óÁ¬Ğø³öÏÖ´ÎÊı
+// æŸ¥æ‰¾å­—ç¬¦åœ¨å­—ç¬¦ä¸²ä¸­æœ€å¤§è¿ç»­å‡ºç°æ¬¡æ•°
 int32_t sframe::GetCharMaxContinueInString(const std::string & str, char c)
 {
 	int32_t cur = 0;
@@ -69,7 +75,7 @@ int32_t sframe::GetCharMaxContinueInString(const std::string & str, char c)
 	return max;
 }
 
-// ²éÕÒ×Ó´®
+// æŸ¥æ‰¾å­ä¸²
 int32_t sframe::FindFirstSubstr(const char * str, int32_t len, const char * sub_str)
 {
 	int32_t sub_str_len = (int32_t)strlen(sub_str);
@@ -92,7 +98,7 @@ int32_t sframe::FindFirstSubstr(const char * str, int32_t len, const char * sub_
 
 static const char kUpperLower = 'a' - 'Z';
 
-// ½«×Ö·û´®×ª»»Îª´óĞ´
+// å°†å­—ç¬¦ä¸²è½¬æ¢ä¸ºå¤§å†™
 void sframe::UpperString(std::string & str)
 {
 	for (std::string::iterator it = str.begin(); it != str.end(); it++)
@@ -105,7 +111,7 @@ void sframe::UpperString(std::string & str)
 	}
 }
 
-// ½«×Ö·û´®×ª»»ÎªĞ¡Ğ´
+// å°†å­—ç¬¦ä¸²è½¬æ¢ä¸ºå°å†™
 void sframe::LowerString(std::string & str)
 {
 	for (std::string::iterator it = str.begin(); it != str.end(); it++)
@@ -118,7 +124,7 @@ void sframe::LowerString(std::string & str)
 	}
 }
 
-// ½«×Ö·û´®×ª»»Îª´óĞ´
+// å°†å­—ç¬¦ä¸²è½¬æ¢ä¸ºå¤§å†™
 std::string sframe::ToUpper(const std::string & str)
 {
 	std::string new_str;
@@ -137,7 +143,7 @@ std::string sframe::ToUpper(const std::string & str)
 	return new_str;
 }
 
-// ½«×Ö·û´®×ª»»ÎªĞ¡Ğ´
+// å°†å­—ç¬¦ä¸²è½¬æ¢ä¸ºå°å†™
 std::string sframe::ToLower(const std::string & str)
 {
 	std::string new_str;
@@ -156,7 +162,7 @@ std::string sframe::ToLower(const std::string & str)
 	return new_str;
 }
 
-// È¥µôÍ·²¿¿Õ´®
+// å»æ‰å¤´éƒ¨ç©ºä¸²
 std::string sframe::TrimLeft(const std::string & str, char c)
 {
 	size_t pos = str.find_first_not_of(c);
@@ -168,7 +174,7 @@ std::string sframe::TrimLeft(const std::string & str, char c)
 	return str.substr(pos);
 }
 
-// È¥µôÎ²²¿¿Õ´®
+// å»æ‰å°¾éƒ¨ç©ºä¸²
 std::string sframe::TrimRight(const std::string & str, char c)
 {
 	size_t pos = str.find_last_not_of(c);
@@ -180,7 +186,7 @@ std::string sframe::TrimRight(const std::string & str, char c)
 	return str.substr(0, pos + 1);
 }
 
-// È¥µôÁ½±ß¿Õ´®
+// å»æ‰ä¸¤è¾¹ç©ºä¸²
 std::string sframe::Trim(const std::string & str, char c)
 {
 	return TrimLeft(TrimRight(str, c), c);
@@ -254,37 +260,37 @@ size_t sframe::UTF8ToWChar(const char * str, size_t len, wchar_t * wc)
 	uint32_t chr_data = 0;
 	const uint8_t * data = (const uint8_t *)str;
 	size_t bytes_num = 0;
-	// 1×Ö½Ú [0, 0x80)
+	// 1å­—èŠ‚ [0, 0x80)
 	if (data[0] < 0x80)
 	{
 		chr_data = data[0];
 		bytes_num = 1;
 	}
-	// 2¸ö×Ö½Ú [0xc0, 0xe0)
+	// 2ä¸ªå­—èŠ‚ [0xc0, 0xe0)
 	else if (data[0] >= 0xc0 && data[0] < 0xe0)
 	{
 		chr_data = (data[0] & 0x1f);
 		bytes_num = 2;
 	}
-	// 3×Ö½Ú [0xe0, 0xf0)
+	// 3å­—èŠ‚ [0xe0, 0xf0)
 	else if (data[0] < 0xf0)
 	{
 		chr_data = (data[0] & 0x0f);
 		bytes_num = 3;
 	}
-	// 4×Ö½Ú [0xf0, 0xf8)
+	// 4å­—èŠ‚ [0xf0, 0xf8)
 	else if (data[0] < 0xf8)
 	{
 		chr_data = (data[0] & 0x07);
 		bytes_num = 4;
 	}
-	// 5×Ö½Ú [0xf8, 0xfc)
+	// 5å­—èŠ‚ [0xf8, 0xfc)
 	else if (data[0] < 0xfc)
 	{
 		chr_data = (data[0] & 0x03);
 		bytes_num = 5;
 	}
-	// 6×Ö½Ú [0xfc, 0xfe)
+	// 6å­—èŠ‚ [0xfc, 0xfe)
 	else if (data[0] < 0xfe)
 	{
 		chr_data = (data[0] & 0x01);
@@ -371,13 +377,13 @@ size_t sframe::WCharToUTF8(wchar_t wc, char * buf, size_t buf_size)
 	return bytes_num;
 }
 
-// ÊÇ·ñºÏ·¨µÄutf8
+// æ˜¯å¦åˆæ³•çš„utf8
 bool sframe::IsValidUTF8(const std::string & str)
 {
 	return IsValidUTF8(str.data(), str.length());
 }
 
-// ÊÇ·ñºÏ·¨µÄutf8
+// æ˜¯å¦åˆæ³•çš„utf8
 bool sframe::IsValidUTF8(const char * str, size_t len)
 {
 	while (len > 0)
@@ -445,7 +451,7 @@ static bool CompareCharacter(char c1, char c2, bool ignore_case)
 
 	if (ignore_case)
 	{
-		// È«²¿×ª»»ÎªĞ¡Ğ´
+		// å…¨éƒ¨è½¬æ¢ä¸ºå°å†™
 		if (c1 >= 'A' && c1 <= 'Z')
 		{
 			c1 += diff;
@@ -459,9 +465,9 @@ static bool CompareCharacter(char c1, char c2, bool ignore_case)
 	return c1 == c2;
 }
 
-// ÊÇ·ñÆ¥ÅäÍ¨Åä·û£¨?ºÍ*£©
-// str     :   ²»´øÍ¨Åä·ûµÄ×Ö·û´®
-// match   :   ´øÍ¨Åä·ûµÄ×Ö·û´®
+// æ˜¯å¦åŒ¹é…é€šé…ç¬¦ï¼ˆ?å’Œ*ï¼‰
+// str     :   ä¸å¸¦é€šé…ç¬¦çš„å­—ç¬¦ä¸²
+// match   :   å¸¦é€šé…ç¬¦çš„å­—ç¬¦ä¸²
 bool sframe::MatchWildcardStr(const std::string & str, const std::string & match, bool ignore_case)
 {
 	bool have_star = false;
@@ -554,7 +560,7 @@ bool sframe::MatchWildcardStr(const std::string & str, const std::string & match
 
 #ifndef __GNUC__
 
-// ½âÎöÀàĞÍÃû³Æ£¨×ª»»Îª A::B::C µÄĞÎÊ½£©
+// è§£æç±»å‹åç§°ï¼ˆè½¬æ¢ä¸º A::B::C çš„å½¢å¼ï¼‰
 std::string sframe::ReadTypeName(const char * name)
 {
 	const char * p = strstr(name, " ");
@@ -576,7 +582,7 @@ std::string sframe::ReadTypeName(const char * name)
 
 #else
 
-// ½âÎöÀàĞÍÃû³Æ£¨×ª»»Îª A::B::C µÄĞÎÊ½£©
+// è§£æç±»å‹åç§°ï¼ˆè½¬æ¢ä¸º A::B::C çš„å½¢å¼ï¼‰
 std::string sframe::ReadTypeName(const char * name)
 {
 	char * real_name = abi::__cxa_demangle(name, nullptr, nullptr, nullptr);

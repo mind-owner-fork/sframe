@@ -96,11 +96,6 @@ void Logger::Flush()
 	static int flush_count = 0;
 	flush_count++;
 
-	if (flush_count == 3)
-	{
-		int a = 0;
-	}
-
 	{
 		AUTO_LOCK(_lock);
 		assert(_waiting_flush);
@@ -339,7 +334,7 @@ void LoggerMgr::ExecFlushLog(LoggerMgr * log_mgr)
 
 
 
-LogStreamBuf::LogStreamBuf(Logger & logger, int64_t cur_time) : _logger(logger), _cur_time(cur_time)
+LogStreamBuf::LogStreamBuf(Logger & logger, int64_t cur_time) : _cur_time(cur_time), _logger(logger)
 {
 	setp(_buf, _buf + kMaxBufferLen);
 }
@@ -393,7 +388,7 @@ const char LogStream::kLogLevelText[kLogLevelCount][8] =
 };
 
 LogStream::LogStream(const std::string & log_name, LogLevel log_lv)
-    : _log_buf(LoggerMgr::Instance().GetLogger(log_name), TimeHelper::GetEpochSeconds()), std::ostream(&_log_buf), _log_lv(log_lv)
+    : std::ostream(&_log_buf), _log_buf(LoggerMgr::Instance().GetLogger(log_name), TimeHelper::GetEpochSeconds()), _log_lv(log_lv)
 {
     tm cur_tm;
     TimeHelper::LocalTime(_log_buf.GetCurTime(), &cur_tm);

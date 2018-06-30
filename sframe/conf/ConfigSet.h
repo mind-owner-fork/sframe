@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_CONFIG_SET_H
 #define SFRAME_CONFIG_SET_H
 
@@ -18,7 +18,7 @@
 
 namespace sframe {
 
-// ÅäÖÃ¼¯ºÏ
+// é…ç½®é›†åˆ
 class ConfigSet
 {
 public:
@@ -60,45 +60,45 @@ public:
 
 	virtual ~ConfigSet();
 
-	// ¼ÓÔØ(È«²¿³É¹¦·µ»Øtrue, Ö»ÒªÓĞÒ»¸öÊ§°Ü¶¼»á·µ»Øfalse)
-	// ³ö´íÊ±£¬err_info»á·µ»Ø³ö´íµÄÅäÖÃĞÅÏ¢
+	// åŠ è½½(å…¨éƒ¨æˆåŠŸè¿”å›true, åªè¦æœ‰ä¸€ä¸ªå¤±è´¥éƒ½ä¼šè¿”å›false)
+	// å‡ºé”™æ—¶ï¼Œerr_infoä¼šè¿”å›å‡ºé”™çš„é…ç½®ä¿¡æ¯
 	bool Load(const std::string & path, std::vector<std::string> * vec_err_msg = nullptr);
 
 
-	///////////////////////// ²éÑ¯Ïà¹Ø·½·¨ ///////////////////////////
+	///////////////////////// æŸ¥è¯¢ç›¸å…³æ–¹æ³• ///////////////////////////
 
-	// »ñÈ¡ÅäÖÃÄ£¿é
+	// è·å–é…ç½®æ¨¡å—
 	template<typename T>
 	std::shared_ptr<const T> GetConfigModule() const;
 
-	// »ñÈ¡ÅäÖÃ
+	// è·å–é…ç½®
 	template<typename T>
 	std::shared_ptr<const typename CONFIG_MODEL_TYPE(T)> GetConfig() const;
 
-	// ¸ù¾İkey»ñÈ¡MapÀàĞÍÌõÄ¿
+	// æ ¹æ®keyè·å–Mapç±»å‹æ¡ç›®
 	template<typename T>
 	std::shared_ptr<const typename CONFIG_CONF_TYPE(T)> GetMapConfigItem(const typename CONFIG_KEY_TYPE(T) & key) const;
 
-	// ×¢²áÅäÖÃ
-	// conf_file_name£ºÅäÖÃÎÄ¼şÃû£¬±ØĞëÎªLoadÊ±´«Èë»ù´¡Ä¿Â¼Â·¾¢µÄÏà¶ÔÂ·¾¢£¬Ö§³ÖÍ¨Åä·ûÒÔ±íÊ¾¶à¸öÎÄ¼ş
+	// æ³¨å†Œé…ç½®
+	// conf_file_nameï¼šé…ç½®æ–‡ä»¶åï¼Œå¿…é¡»ä¸ºLoadæ—¶ä¼ å…¥åŸºç¡€ç›®å½•è·¯åŠ²çš„ç›¸å¯¹è·¯åŠ²ï¼Œæ”¯æŒé€šé…ç¬¦ä»¥è¡¨ç¤ºå¤šä¸ªæ–‡ä»¶
 	template<typename T_ConfigLoader, typename T>
 	void RegistConfigModule(const std::string & conf_file_name);
 
 private:
 
-	// ¼ÓÔØ
+	// åŠ è½½
 	template<typename T_ConfigLoader, typename T_Module>
 	static bool LoadConfig(const std::string & conf_file_name, ConfUnitT<T_Module> * o);
 
-	// ¼ÓÔØ£¨µ¥¸öÎÄ¼ş£©
+	// åŠ è½½ï¼ˆå•ä¸ªæ–‡ä»¶ï¼‰
 	template<typename T_ConfigLoader, typename T>
 	ConfigSet::ConfUnit * LoadConfig_OneFile(const std::string & conf_file_name, std::vector<std::string> * err_file_name);
 
-	// ¼ÓÔØ£¨¶àÎÄ¼ş£©
+	// åŠ è½½ï¼ˆå¤šæ–‡ä»¶ï¼‰
 	template<typename T_ConfigLoader, typename T>
 	ConfigSet::ConfUnit * LoadConfig_MultiFile(const std::string & conf_file_name, std::vector<std::string> * err_file_name);
 
-	// ³õÊ¼»¯ÅäÖÃ
+	// åˆå§‹åŒ–é…ç½®
 	template<typename T_Module>
 	bool InitConfig(ConfigSet::ConfUnit * conf);
 
@@ -114,7 +114,7 @@ private:
 };
 
 
-// »ñÈ¡ÅäÖÃÄ£¿é
+// è·å–é…ç½®æ¨¡å—
 template<typename T>
 std::shared_ptr<const T> ConfigSet::GetConfigModule() const
 {
@@ -149,11 +149,10 @@ std::shared_ptr<const T> ConfigSet::GetConfigModule() const
 	return config_ele->val;
 }
 
-// »ñÈ¡ÅäÖÃ
+// è·å–é…ç½®
 template<typename T>
 std::shared_ptr<const typename CONFIG_MODEL_TYPE(T)> ConfigSet::GetConfig() const
 {
-	int32_t config_id = GET_CONFIGID(T);
 	std::shared_ptr<const T> conf_module = GetConfigModule<T>();
 	if (!conf_module)
 	{
@@ -163,7 +162,7 @@ std::shared_ptr<const typename CONFIG_MODEL_TYPE(T)> ConfigSet::GetConfig() cons
 	return conf_module->Obj();
 }
 
-// ¸ù¾İkey»ñÈ¡MapÀàĞÍÌõÄ¿
+// æ ¹æ®keyè·å–Mapç±»å‹æ¡ç›®
 template<typename T>
 std::shared_ptr<const typename CONFIG_CONF_TYPE(T)> ConfigSet::GetMapConfigItem(const typename CONFIG_KEY_TYPE(T) & key) const
 {
@@ -176,8 +175,8 @@ std::shared_ptr<const typename CONFIG_CONF_TYPE(T)> ConfigSet::GetMapConfigItem(
 	return map_conf->GetConfigItem(key);
 }
 
-// ×¢²áÅäÖÃ
-// conf_file_name£ºÅäÖÃÎÄ¼şÃû£¬±ØĞëÎªLoadÊ±´«Èë»ù´¡Ä¿Â¼Â·¾¢µÄÏà¶ÔÂ·¾¢£¬Ö§³ÖÍ¨Åä·ûÒÔ±íÊ¾¶à¸öÎÄ¼ş
+// æ³¨å†Œé…ç½®
+// conf_file_nameï¼šé…ç½®æ–‡ä»¶åï¼Œå¿…é¡»ä¸ºLoadæ—¶ä¼ å…¥åŸºç¡€ç›®å½•è·¯åŠ²çš„ç›¸å¯¹è·¯åŠ²ï¼Œæ”¯æŒé€šé…ç¬¦ä»¥è¡¨ç¤ºå¤šä¸ªæ–‡ä»¶
 template<typename T_ConfigLoader, typename T>
 void ConfigSet::RegistConfigModule(const std::string & conf_file_name)
 {
@@ -196,7 +195,7 @@ void ConfigSet::RegistConfigModule(const std::string & conf_file_name)
 	load_helper.conf_file_name = conf_file_name;
 	load_helper.conf_type_name = ReadTypeName(typeid(T).name());
 
-	// ¿´ÎÄ¼şÃüÖĞÊÇ·ñÓĞÍ¨Åä·û(*)£¬ÈôÓĞµÄ»°£¬²ÉÓÃ¶àÎÄ¼ş¼ÓÔØ·½Ê½
+	// çœ‹æ–‡ä»¶å‘½ä¸­æ˜¯å¦æœ‰é€šé…ç¬¦(*)ï¼Œè‹¥æœ‰çš„è¯ï¼Œé‡‡ç”¨å¤šæ–‡ä»¶åŠ è½½æ–¹å¼
 	if (load_helper.conf_file_name.find('*') == std::string::npos)
 	{
 		load_helper.func_load = &ConfigSet::LoadConfig_OneFile<T_ConfigLoader, T>;
@@ -206,7 +205,7 @@ void ConfigSet::RegistConfigModule(const std::string & conf_file_name)
 		load_helper.func_load = &ConfigSet::LoadConfig_MultiFile<T_ConfigLoader, T>;
 	}
 
-	// ±£´æ
+	// ä¿å­˜
 	if (config_id < 0)
 	{
 		_temporary_config_load_helper.push_back(load_helper);
@@ -218,7 +217,7 @@ void ConfigSet::RegistConfigModule(const std::string & conf_file_name)
 	}
 }
 
-// ¼ÓÔØ
+// åŠ è½½
 template<typename T_ConfigLoader, typename T_Module>
 bool ConfigSet::LoadConfig(const std::string & conf_file_name, ConfUnitT<T_Module> * o)
 {
@@ -231,7 +230,7 @@ bool ConfigSet::LoadConfig(const std::string & conf_file_name, ConfUnitT<T_Modul
 	return T_ConfigLoader::Load(conf_file_name, *(o->val->Obj().get()));
 }
 
-// ¼ÓÔØ£¨µ¥¸öÎÄ¼ş£©
+// åŠ è½½ï¼ˆå•ä¸ªæ–‡ä»¶ï¼‰
 template<typename T_ConfigLoader, typename T>
 ConfigSet::ConfUnit * ConfigSet::LoadConfig_OneFile(const std::string & conf_file_name, std::vector<std::string> * err_file_name)
 {
@@ -251,7 +250,7 @@ ConfigSet::ConfUnit * ConfigSet::LoadConfig_OneFile(const std::string & conf_fil
 	return o;
 }
 
-// ¼ÓÔØ£¨¶àÎÄ¼ş£©
+// åŠ è½½ï¼ˆå¤šæ–‡ä»¶ï¼‰
 template<typename T_ConfigLoader, typename T>
 ConfigSet::ConfUnit * ConfigSet::LoadConfig_MultiFile(const std::string & conf_file_name, std::vector<std::string> * err_file_name)
 {
@@ -279,7 +278,7 @@ ConfigSet::ConfUnit * ConfigSet::LoadConfig_MultiFile(const std::string & conf_f
 	return o;
 }
 
-// ³õÊ¼»¯ÅäÖÃ
+// åˆå§‹åŒ–é…ç½®
 template<typename T_Module>
 bool ConfigSet::InitConfig(ConfigSet::ConfUnit * conf)
 {

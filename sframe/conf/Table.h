@@ -1,4 +1,4 @@
-
+ï»¿
 #ifndef SFRAME_TABLE_H
 #define SFRAME_TABLE_H
 
@@ -12,7 +12,7 @@ namespace sframe {
 
 class Table;
 
-// ±í¸ñÐÐ
+// è¡¨æ ¼è¡Œ
 class Row
 {
 public:
@@ -41,7 +41,7 @@ private:
 	std::vector<std::string> _data;
 };
 
-// ±í¸ñÁÐ
+// è¡¨æ ¼åˆ—
 class Column
 {
 public:
@@ -81,7 +81,7 @@ private:
 	int32_t _index;
 };
 
-// ±í¸ñÀà
+// è¡¨æ ¼ç±»
 class Table
 {
 public:
@@ -93,10 +93,10 @@ public:
 
 	~Table();
 
-	// Ìí¼ÓÐÂÁÐ
+	// æ·»åŠ æ–°åˆ—
 	Column & NewColumn(const std::string & column_name = "");
 
-	// Ìí¼ÓÐÂÐÐ
+	// æ·»åŠ æ–°è¡Œ
 	Row & NewRow();
 
 	Row & GetRow(int32_t index);
@@ -125,8 +125,8 @@ public:
 	bool RemoveColumn(int32_t colum_index);
 
 private:
-	std::vector<Row*> _rows;           // ËùÓÐÐÐ
-	std::vector<Column*> _columns;     // ËùÓÐÁÐ
+	std::vector<Row*> _rows;           // æ‰€æœ‰è¡Œ
+	std::vector<Column*> _columns;     // æ‰€æœ‰åˆ—
 };
 
 }

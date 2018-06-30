@@ -1,4 +1,4 @@
-
+ï»¿
 #include "../util/ObjectPool.h"
 #include "SendBuffer.h"
 
@@ -18,13 +18,13 @@ void SendBuffer::Push(const char * data, int32_t len, bool & send_now)
 
 	AUTO_LOCK(_locker);
 
-	// ÏÈ³¢ÊÔÑ¹ÈëÖ÷»º³åÇø
+	// å…ˆå°è¯•å‹å…¥ä¸»ç¼“å†²åŒº
 	int32_t pushed = _buf.Push(data, len);
 	if (pushed < len)
 	{
 		if (pushed > 0)
 		{
-			// ÈôÑ¹ÈëÁËÊı¾İµ½Ö÷»º³åÇø£¬ÄÇÃ´±¸ÓÃµÄÁ´±í±Ø¶¨Îª¿Õ
+			// è‹¥å‹å…¥äº†æ•°æ®åˆ°ä¸»ç¼“å†²åŒºï¼Œé‚£ä¹ˆå¤‡ç”¨çš„é“¾è¡¨å¿…å®šä¸ºç©º
 			assert(_standby_list.empty());
 		}
 
@@ -51,13 +51,13 @@ void SendBuffer::PushNotSend(const char * data, int32_t len)
 {
 	AUTO_LOCK(_locker);
 
-	// ÏÈ³¢ÊÔÑ¹ÈëÖ÷»º³åÇø
+	// å…ˆå°è¯•å‹å…¥ä¸»ç¼“å†²åŒº
 	int32_t pushed = _buf.Push(data, len);
 	if (pushed < len)
 	{
 		if (pushed > 0)
 		{
-			// ÈôÑ¹ÈëÁËÊı¾İµ½Ö÷»º³åÇø£¬ÄÇÃ´±¸ÓÃµÄÁ´±í±Ø¶¨Îª¿Õ
+			// è‹¥å‹å…¥äº†æ•°æ®åˆ°ä¸»ç¼“å†²åŒºï¼Œé‚£ä¹ˆå¤‡ç”¨çš„é“¾è¡¨å¿…å®šä¸ºç©º
 			assert(_standby_list.empty());
 		}
 
@@ -74,7 +74,7 @@ void SendBuffer::PushNotSend(const char * data, int32_t len)
 	}
 }
 
-// ¶ÁÊı¾İ
+// è¯»æ•°æ®
 char * SendBuffer::Peek(int32_t & len)
 {
 	AUTO_LOCK(_locker);
@@ -89,7 +89,7 @@ char * SendBuffer::Peek(int32_t & len)
 	return data;
 }
 
-// ÊÍ·Å¿Õ¼ä
+// é‡Šæ”¾ç©ºé—´
 void SendBuffer::Free(int32_t len)
 {
 	if (len <= 0)

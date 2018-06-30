@@ -1,4 +1,4 @@
-
+ï»¿
 #include "ServiceDispatcher.h"
 #include "ServiceSession.h"
 #include "ProxyService.h"
@@ -9,17 +9,20 @@
 using namespace sframe;
 
 ServiceSession::ServiceSession(int32_t id, ProxyService * proxy_service, const std::string & remote_ip, uint16_t remote_port)
-	: _session_id(id), _remote_ip(remote_ip), _remote_port(remote_port), _proxy_service(proxy_service), 
-	_state(kSessionState_Initialize),  _reconnect(true), _cur_msg_size(0), _cur_msg_readed_size(0)
+	: _proxy_service(proxy_service), _session_id(id), _state(kSessionState_Initialize), _reconnect(true), 
+	_remote_ip(remote_ip), _remote_port(remote_port), _cur_msg_size(0), _cur_msg_readed_size(0), 
+	_last_recv_heartbeat_time(0), _open_heartbeat(true)
 {
 	assert(!remote_ip.empty() && proxy_service);
 }
 
 ServiceSession::ServiceSession(int32_t id, ProxyService * proxy_service, const std::shared_ptr<sframe::TcpSocket> & sock)
-	: _session_id(id), _socket(sock), _state(kSessionState_Running), _proxy_service(proxy_service), 
-	_reconnect(false), _cur_msg_size(0), _cur_msg_readed_size(0)
+	: _proxy_service(proxy_service), _socket(sock), _session_id(id), _state(kSessionState_Running),
+	_reconnect(false), _cur_msg_size(0), _cur_msg_readed_size(0), _open_heartbeat(true)
 {
 	assert(sock != nullptr && proxy_service);
+	int64_t now_steady_mili_secs = TimeHelper::GetSteadyMiliseconds();
+	_last_recv_heartbeat_time = now_steady_mili_secs;
 }
 
 
@@ -31,9 +34,12 @@ void ServiceSession::Init()
 	}
 	else
 	{
+		// è®¾ç½®socketç›‘å¬å™¨
 		_socket->SetMonitor(this);
-		// ¿ªÊ¼½ÓÊÕÊı¾İ
+		// å¼€å§‹æ¥æ”¶æ•°æ®
 		_socket->StartRecv();
+		// å¼€å¯å¿ƒè·³æ£€æµ‹å®šæ—¶å™¨
+		SetCheckHeartbeatTimeoutTimer();
 	}
 }
 
@@ -60,9 +66,13 @@ void ServiceSession::Close()
 	}
 }
 
-// ³¢ÊÔÊÍ·Å
+// å°è¯•é‡Šæ”¾
 bool ServiceSession::TryFree()
 {
+	// åˆ é™¤å¿ƒè·³æ£€æµ‹å®šæ—¶å™¨ä¸å¿ƒè·³å‘é€å®šæ—¶å™¨
+	GetTimerManager()->DeleteTimer(_check_heartbeat_timeout_timer);
+	GetTimerManager()->DeleteTimer(_send_heartbeat_timer);
+
 	if (!_reconnect)
 	{
 		return true;
@@ -70,31 +80,38 @@ bool ServiceSession::TryFree()
 
 	_state = kSessionState_WaitConnect;
 	_socket.reset();
-	// ¿ªÆôÁ¬½Ó¶¨Ê±Æ÷
+	// å¼€å¯è¿æ¥å®šæ—¶å™¨
 	SetConnectTimer(kReconnectInterval);
 
 	return false;
 }
 
-// Á¬½Ó²Ù×÷Íê³É´¦Àí
+// è¿æ¥æ“ä½œå®Œæˆå¤„ç†
 void ServiceSession::DoConnectCompleted(bool success)
 {
 	if (!success)
 	{
-		// Çå¿Õ»º´æµÄ·¢ËÍÊı¾İ
+		// æ¸…ç©ºç¼“å­˜çš„å‘é€æ•°æ®
 		_msg_cache.clear();
-		// ¿ªÆôÁ¬½Ó¶¨Ê±Æ÷
+		// å¼€å¯è¿æ¥å®šæ—¶å™¨
 		_socket.reset();
 		_state = kSessionState_WaitConnect;
 		SetConnectTimer(kReconnectInterval);
 		return;
 	}
 
-	// ¿ªÊ¼»á»°
+	// å¼€å§‹ä¼šè¯
 	_state = ServiceSession::kSessionState_Running;
 	assert(_socket->IsOpen());
 
-	// Ö®Ç°»º´æµÄÊı¾İÁ¢¼´·¢ËÍ³öÈ¥
+	// è®¾ç½®ä¸Šæ¬¡æ¥æ”¶æ•°æ®æ—¶é—´ä¸ºå½“å‰
+	int64_t now_steady_mili_secs = TimeHelper::GetSteadyMiliseconds();
+	_last_recv_heartbeat_time = now_steady_mili_secs;
+	// å¼€å¯å¿ƒè·³æ£€æµ‹å®šæ—¶å™¨ä¸å¿ƒè·³å‘é€å®šæ—¶å™¨
+	SetSendHeartbeatTimer();
+	SetCheckHeartbeatTimeoutTimer();
+
+	// ä¹‹å‰ç¼“å­˜çš„æ•°æ®ç«‹å³å‘é€å‡ºå»
 	for (auto & msg : _msg_cache)
 	{
 		std::string data;
@@ -110,14 +127,28 @@ void ServiceSession::DoConnectCompleted(bool success)
 	_msg_cache.clear();
 }
 
-// ·¢ËÍÊı¾İ
+// æ”¶åˆ°å¿ƒè·³æ¶ˆæ¯
+void ServiceSession::DoRecvHeartbeatMsg()
+{
+	// è®¾ç½®ä¸Šæ¬¡æ¥æ”¶æ•°æ®æ—¶é—´ä¸ºå½“å‰
+	int64_t now_steady_mili_secs = TimeHelper::GetSteadyMiliseconds();
+	_last_recv_heartbeat_time = now_steady_mili_secs;
+
+	if (!Timer::IsTimerAlive(_send_heartbeat_timer))
+	{
+		// å›ä¸€ä¸ªå¿ƒè·³æ¶ˆæ¯
+		SendHeartbeatMsg();
+	}
+}
+
+// å‘é€æ•°æ®
 void ServiceSession::SendData(const std::shared_ptr<ProxyServiceMessage> & msg)
 {
 	if (_state != ServiceSession::kSessionState_Running)
 	{
-		// »º´æÏÂÀ´
+		// ç¼“å­˜ä¸‹æ¥
 		_msg_cache.push_back(msg);
-		// Èç¹ûµ±Ç°´¦ÓÚµÈ´ıÁ¬½Ó×´Ì¬£¬É¾³ıtimer£¬Á¢¼´¿ªÊ¼Á¬½Ó
+		// å¦‚æœå½“å‰å¤„äºç­‰å¾…è¿æ¥çŠ¶æ€ï¼Œåˆ é™¤timerï¼Œç«‹å³å¼€å§‹è¿æ¥
 		if (_state == ServiceSession::kSessionState_WaitConnect)
 		{
 			assert(Timer::IsTimerAlive(_connect_timer));
@@ -128,7 +159,7 @@ void ServiceSession::SendData(const std::shared_ptr<ProxyServiceMessage> & msg)
 	else
 	{
 		assert(_socket);
-		// Ö±½Ó·¢ËÍ
+		// ç›´æ¥å‘é€
 		std::string data;
 		if (msg->Serialize(data))
 		{
@@ -137,7 +168,7 @@ void ServiceSession::SendData(const std::shared_ptr<ProxyServiceMessage> & msg)
 	}
 }
 
-// ·¢ËÍÊı¾İ
+// å‘é€æ•°æ®
 void ServiceSession::SendData(const char * data, size_t len)
 {
 	if (_state == ServiceSession::kSessionState_Running && data && len > 0)
@@ -147,7 +178,7 @@ void ServiceSession::SendData(const char * data, size_t len)
 	}
 }
 
-// »ñÈ¡µØÖ·
+// è·å–åœ°å€
 std::string ServiceSession::GetRemoteAddrText() const
 {
 	if (!_socket)
@@ -158,8 +189,8 @@ std::string ServiceSession::GetRemoteAddrText() const
 	return SocketAddrText(_socket->GetRemoteAddress()).Text();
 }
 
-// ½ÓÊÕµ½Êı¾İ
-// ·µ»ØÊ£Óà¶àÉÙÊı¾İ
+// æ¥æ”¶åˆ°æ•°æ®
+// è¿”å›å‰©ä½™å¤šå°‘æ•°æ®
 int32_t ServiceSession::OnReceived(char * data, int32_t len)
 {
 	assert(data && len > 0 && _state == kSessionState_Running);
@@ -169,7 +200,7 @@ int32_t ServiceSession::OnReceived(char * data, int32_t len)
 
 	while (surplus > 0)
 	{
-		if (_cur_msg_size > 0)
+		if (_cur_msg_size != 0)
 		{
 			assert(_cur_msg_data && _cur_msg_size > _cur_msg_readed_size);
 
@@ -204,12 +235,13 @@ int32_t ServiceSession::OnReceived(char * data, int32_t len)
 			p += msg_size_reader.GetReadedLength();
 			surplus -= msg_size_reader.GetReadedLength();
 
-			_cur_msg_data = std::make_shared<std::vector<char>>(_cur_msg_size);
-
-			if (_cur_msg_size == 0)
+			if (_cur_msg_size != 0)
+			{
+				_cur_msg_data = std::make_shared<std::vector<char>>(_cur_msg_size);
+			}
+			else
 			{
 				ServiceDispatcher::Instance().SendInsideServiceMsg(0, 0, 0, kProxyServiceMsgId_SessionRecvData, _session_id, _cur_msg_data);
-				_cur_msg_data.reset();
 			}
 		}
 	}
@@ -217,8 +249,8 @@ int32_t ServiceSession::OnReceived(char * data, int32_t len)
 	return (int32_t)surplus;
 }
 
-// Socket¹Ø±Õ
-// by_self: true±íÊ¾Ö÷¶¯ÇëÇóµÄ¹Ø±Õ²Ù×÷
+// Socketå…³é—­
+// by_self: trueè¡¨ç¤ºä¸»åŠ¨è¯·æ±‚çš„å…³é—­æ“ä½œ
 void ServiceSession::OnClosed(bool by_self, sframe::Error err)
 {
 	if (err)
@@ -238,7 +270,7 @@ void ServiceSession::OnClosed(bool by_self, sframe::Error err)
 	ServiceDispatcher::Instance().SendMsg(0, msg);
 }
 
-// Á¬½Ó²Ù×÷Íê³É
+// è¿æ¥æ“ä½œå®Œæˆ
 void ServiceSession::OnConnected(sframe::Error err)
 {
 	bool success = true;
@@ -253,30 +285,82 @@ void ServiceSession::OnConnected(sframe::Error err)
 		LOG_INFO << "Connect to server(" << _remote_ip << ":" << _remote_port << ") success" << ENDL;
 	}
 
-	// Í¨ÖªÁ¬½ÓÍê³É
+	// é€šçŸ¥è¿æ¥å®Œæˆ
 	ServiceDispatcher::Instance().SendInsideServiceMsg(0, 0, 0, kProxyServiceMsgId_SessionConnectCompleted, _session_id, success);
-	// ¿ªÊ¼½ÓÊÕÊı¾İ
+	// å¼€å§‹æ¥æ”¶æ•°æ®
 	if (success)
 	{
 		_socket->StartRecv();
 	}
 }
 
-// ¿ªÊ¼Á¬½Ó¶¨Ê±Æ÷
+// å¼€å§‹è¿æ¥å®šæ—¶å™¨
 void ServiceSession::SetConnectTimer(int32_t after_ms)
 {
 	_connect_timer = RegistTimer(after_ms, &ServiceSession::OnTimer_Connect);
 }
 
-// ¶¨Ê±£ºÁ¬½Ó
+// å¼€å§‹å‘é€å¿ƒè·³æ¶ˆæ¯å®šæ—¶å™¨
+void ServiceSession::SetSendHeartbeatTimer()
+{
+	if (!_open_heartbeat)
+	{
+		return;
+	}
+
+	_send_heartbeat_timer = RegistTimer(kSendHeartbeatInterval, &ServiceSession::OnTimer_SendHeartbeat);
+}
+
+// å¼€å§‹æ£€æµ‹å¿ƒè·³è¶…æ—¶å®šæ—¶å™¨
+void ServiceSession::SetCheckHeartbeatTimeoutTimer()
+{
+	if (!_open_heartbeat)
+	{
+		return;
+	}
+
+	_check_heartbeat_timeout_timer = RegistTimer(kHeartbeatTimeoutMiliSecs, &ServiceSession::OnTimer_CheckHeartbeatTimeout);
+}
+
+// å®šæ—¶ï¼šè¿æ¥
 int32_t ServiceSession::OnTimer_Connect()
 {
 	StartConnect();
-	// Ö»Ö´ĞĞÒ»´ÎºóÍ£Ö¹
+	// åªæ‰§è¡Œä¸€æ¬¡ååœæ­¢
 	return -1;
 }
 
-// ¿ªÊ¼Á¬½Ó
+// å®šæ—¶ï¼šå‘é€å¿ƒè·³åŒ…
+int32_t ServiceSession::OnTimer_SendHeartbeat()
+{
+	SendHeartbeatMsg();
+	return kSendHeartbeatInterval;
+}
+
+// å®šæ—¶ï¼šæ£€æµ‹å¿ƒè·³è¶…æ—¶
+int32_t ServiceSession::OnTimer_CheckHeartbeatTimeout()
+{
+	if (_state != kSessionState_Running)
+	{
+		return -1;
+	}
+
+	assert(_socket);
+
+	int64_t max_allow_mili_secs = _last_recv_heartbeat_time + kHeartbeatTimeoutMiliSecs;
+	int64_t now_steady_mili_secs = TimeHelper::GetSteadyMiliseconds();
+	if (now_steady_mili_secs >= max_allow_mili_secs)
+	{
+		// å¿ƒè·³è¶…æ—¶ï¼Œå…³é—­è¿æ¥
+		LOG_INFO << "Connection with " << SocketAddrText(_socket->GetRemoteAddress()).Text() << " timeout, will close it" << std::endl;
+		_socket->Close();
+		return -1;
+	}
+
+	return (int32_t)(max_allow_mili_secs - now_steady_mili_secs);
+}
+
+// å¼€å§‹è¿æ¥
 void ServiceSession::StartConnect()
 {
 	assert((_state == kSessionState_Initialize || _state == kSessionState_WaitConnect) && !_socket && !_remote_ip.empty());
@@ -288,10 +372,30 @@ void ServiceSession::StartConnect()
 	_socket->Connect(sframe::SocketAddr(_remote_ip.c_str(), _remote_port));
 }
 
+// å‘é€å¿ƒè·³åŒ…
+void ServiceSession::SendHeartbeatMsg()
+{
+	if (_state != ServiceSession::kSessionState_Running || !_socket)
+	{
+		return;
+	}
+
+	char buf[16];
+	StreamWriter writer(buf, sizeof(buf));
+	
+	if (!writer.WriteSizeField(0))
+	{
+		LOG_ERROR << "Serialize heartbeat msg error" << std::endl;
+		return;
+	}
+
+	SendData(writer.GetStream(), writer.GetStreamLength());
+}
 
 
-// ½ÓÊÕµ½Êı¾İ
-// ·µ»ØÊ£Óà¶àÉÙÊı¾İ
+
+// æ¥æ”¶åˆ°æ•°æ®
+// è¿”å›å‰©ä½™å¤šå°‘æ•°æ®
 int32_t AdminSession::OnReceived(char * data, int32_t len)
 {
 	assert(data && len > 0 && GetState() == kSessionState_Running);
@@ -303,7 +407,7 @@ int32_t AdminSession::OnReceived(char * data, int32_t len)
 	if (!err_msg.empty())
 	{
 		LOG_ERROR << "AdminSession(" << session_id << ") decode http request error|" << err_msg << std::endl;
-		// ¹Ø±ÕÁ¬½Ó
+		// å…³é—­è¿æ¥
 		return -1;
 	}
 
